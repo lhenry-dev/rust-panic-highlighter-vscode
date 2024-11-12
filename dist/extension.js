@@ -31,21 +31,38 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var extension_exports = {};
 __export(extension_exports, {
   activate: () => activate,
-  deactivate: () => deactivate
+  deactivate: () => deactivate,
+  defaultIconHeight: () => defaultIconHeight,
+  defaultIconPath: () => defaultIconPath,
+  defaultIconWidth: () => defaultIconWidth
 });
 module.exports = __toCommonJS(extension_exports);
 var vscode = __toESM(require("vscode"));
+var defaultIconPath = "resources/broken.svg";
+var defaultIconWidth = "14px";
+var defaultIconHeight = "14px";
 function activate(context) {
   let diagnosticCollection = vscode.languages.createDiagnosticCollection("rust-panic-highlighter");
   context.subscriptions.push(diagnosticCollection);
-  const decorationType = vscode.window.createTextEditorDecorationType({
-    after: {
-      contentIconPath: vscode.Uri.file(context.asAbsolutePath("resources/broken.svg")),
-      width: "14px",
-      height: "14px",
-      margin: "0 10px"
+  function createDecorationType() {
+    let iconPathSetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.iconPath") || "";
+    if (!iconPathSetting.endsWith(".svg")) {
+      vscode.window.showWarningMessage("Invalid icon path: Only SVG files are supported. Using default icon.");
+      iconPathSetting = context.asAbsolutePath(defaultIconPath);
     }
-  });
+    const iconPath = vscode.Uri.file(iconPathSetting);
+    const iconWidthSetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.iconWidth") || defaultIconWidth;
+    const iconHeightSetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.iconHeight") || defaultIconHeight;
+    return vscode.window.createTextEditorDecorationType({
+      after: {
+        contentIconPath: iconPath,
+        width: iconWidthSetting,
+        height: iconHeightSetting,
+        margin: "0 10px"
+      }
+    });
+  }
+  let decorationType = createDecorationType();
   context.subscriptions.push(decorationType);
   vscode.workspace.onDidOpenTextDocument((doc) => {
     if (doc.languageId === "rust") {
@@ -60,11 +77,40 @@ function activate(context) {
   vscode.workspace.onDidCloseTextDocument((doc) => {
     diagnosticCollection.delete(doc.uri);
   });
+  vscode.workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration("rustPanicHighlighter.iconPath") || event.affectsConfiguration("rustPanicHighlighter.iconWidth") || event.affectsConfiguration("rustPanicHighlighter.iconHeight")) {
+      decorationType.dispose();
+      decorationType = createDecorationType();
+      context.subscriptions.push(decorationType);
+      vscode.workspace.textDocuments.forEach((doc) => {
+        if (doc.languageId === "rust") {
+          updateDiagnostics(doc, diagnosticCollection, decorationType);
+        }
+      });
+    }
+  });
 }
 function updateDiagnostics(doc, diagnosticCollection, decorationType) {
   let diagnostics = [];
   let editor = vscode.window.activeTextEditor;
   let rangesToDecorate = [];
+  const severitySetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.diagnosticSeverity");
+  let severity;
+  switch (severitySetting) {
+    case "Error":
+      severity = vscode.DiagnosticSeverity.Error;
+      break;
+    case "Information":
+      severity = vscode.DiagnosticSeverity.Information;
+      break;
+    case "Hint":
+      severity = vscode.DiagnosticSeverity.Hint;
+      break;
+    case "Warning":
+    default:
+      severity = vscode.DiagnosticSeverity.Warning;
+      break;
+  }
   for (let i = 0; i < doc.lineCount; i++) {
     const line = doc.lineAt(i);
     if (line.text.trimStart().startsWith("//")) {
@@ -82,7 +128,7 @@ function updateDiagnostics(doc, diagnosticCollection, decorationType) {
       let diagnostic = new vscode.Diagnostic(
         line.range,
         diagnosticMessage,
-        vscode.DiagnosticSeverity.Warning
+        severity
       );
       diagnostics.push(diagnostic);
       const range = new vscode.Range(i, line.text.length, i, line.text.length);
@@ -101,6 +147,9 @@ function deactivate() {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   activate,
-  deactivate
+  deactivate,
+  defaultIconHeight,
+  defaultIconPath,
+  defaultIconWidth
 });
 //# sourceMappingURL=extension.js.map

@@ -24,7 +24,42 @@
         ],
         "configuration": "./language-configuration.json"
       }
-    ]
+    ],
+    "configuration": {
+      "properties": {
+        "rustPanicHighlighter.diagnosticSeverity": {
+          "type": "string",
+          "enum": [
+            "Error",
+            "Warning",
+            "Information",
+            "Hint"
+          ],
+          "default": "Warning",
+          "description": "Set the severity level for Rust panic diagnostics.",
+          "order": 1
+        },
+        "rustPanicHighlighter.iconPath": {
+          "type": "string",
+          "default": "",
+          "description": "Specify the path to the icon (SVG only) to display at the end of the line.",
+          "pattern": "^$|^.*\\.svg$",
+          "order": 2
+        },
+        "rustPanicHighlighter.iconWidth": {
+          "type": "string",
+          "default": "14px",
+          "description": "Specify the width of the icon in pixels. Ensure that the SVG does not have a default width set, as this will override the configured size.",
+          "order": 3
+        },
+        "rustPanicHighlighter.iconHeight": {
+          "type": "string",
+          "default": "14px",
+          "description": "Specify the height of the icon in pixels. Ensure that the SVG does not have a default height set, as this will override the configured size.",
+          "order": 4
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
