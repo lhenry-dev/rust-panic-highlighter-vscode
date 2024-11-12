@@ -1,17 +1,36 @@
 import * as vscode from 'vscode';
 
+export const defaultIconPath = 'resources/broken.svg';
+export const defaultIconWidth = '14px';
+export const defaultIconHeight = '14px';
+
 export function activate(context: vscode.ExtensionContext) {
 	let diagnosticCollection = vscode.languages.createDiagnosticCollection('rust-panic-highlighter');
 	context.subscriptions.push(diagnosticCollection);
 
-	const decorationType = vscode.window.createTextEditorDecorationType({
-		after: {
-			contentIconPath: vscode.Uri.file(context.asAbsolutePath('resources/broken.svg')),
-			width: '14px',
-			height: '14px',
-			margin: '0 10px',
+	function createDecorationType(): vscode.TextEditorDecorationType {
+		let iconPathSetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.iconPath') || '';
+
+		if (!iconPathSetting.endsWith('.svg')) {
+			vscode.window.showWarningMessage("Invalid icon path: Only SVG files are supported. Using default icon.");
+			iconPathSetting = context.asAbsolutePath(defaultIconPath);
 		}
-	});
+
+		const iconPath = vscode.Uri.file(iconPathSetting);
+		const iconWidthSetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.iconWidth') || defaultIconWidth;
+		const iconHeightSetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.iconHeight') || defaultIconHeight;
+
+		return vscode.window.createTextEditorDecorationType({
+			after: {
+				contentIconPath: iconPath,
+				width: iconWidthSetting,
+				height: iconHeightSetting,
+				margin: '0 10px',
+			},
+		});
+	}
+
+	let decorationType = createDecorationType();
 	context.subscriptions.push(decorationType);
 
 	vscode.workspace.onDidOpenTextDocument(doc => {
@@ -29,12 +48,48 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidCloseTextDocument(doc => {
 		diagnosticCollection.delete(doc.uri);
 	});
+
+	vscode.workspace.onDidChangeConfiguration(event => {
+		if (event.affectsConfiguration('rustPanicHighlighter.iconPath') ||
+			event.affectsConfiguration('rustPanicHighlighter.iconWidth') ||
+			event.affectsConfiguration('rustPanicHighlighter.iconHeight')) {
+
+			decorationType.dispose();
+			decorationType = createDecorationType();
+			context.subscriptions.push(decorationType);
+
+			vscode.workspace.textDocuments.forEach(doc => {
+				if (doc.languageId === 'rust') {
+					updateDiagnostics(doc, diagnosticCollection, decorationType);
+				}
+			});
+		}
+	});
 }
 
 function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection: vscode.DiagnosticCollection, decorationType: vscode.TextEditorDecorationType): void {
 	let diagnostics: vscode.Diagnostic[] = [];
 	let editor = vscode.window.activeTextEditor;
 	let rangesToDecorate: vscode.Range[] = [];
+
+	const severitySetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.diagnosticSeverity');
+	let severity: vscode.DiagnosticSeverity;
+
+	switch (severitySetting) {
+		case 'Error':
+			severity = vscode.DiagnosticSeverity.Error;
+			break;
+		case 'Information':
+			severity = vscode.DiagnosticSeverity.Information;
+			break;
+		case 'Hint':
+			severity = vscode.DiagnosticSeverity.Hint;
+			break;
+		case 'Warning':
+		default:
+			severity = vscode.DiagnosticSeverity.Warning;
+			break;
+	}
 
 	for (let i = 0; i < doc.lineCount; i++) {
 		const line = doc.lineAt(i);
@@ -57,7 +112,7 @@ function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection: vscod
 			let diagnostic = new vscode.Diagnostic(
 				line.range,
 				diagnosticMessage,
-				vscode.DiagnosticSeverity.Warning
+				severity
 			);
 			diagnostics.push(diagnostic);
 
