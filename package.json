@@ -1,6 +1,6 @@
 {
   "name": "rust-panic-highlighter",
-  "displayName": "rust-panic-highlighter",
+  "displayName": "Rust Panic Highlighter",
   "description": "Highlights lines in Rust code that can panic",
   "version": "0.0.1",
   "engines": {
@@ -27,7 +27,7 @@
     ],
     "configuration": {
       "properties": {
-        "rustPanicHighlighter.diagnosticSeverity": {
+        "diagnostic.severity": {
           "type": "string",
           "enum": [
             "Error",
@@ -39,24 +39,29 @@
           "description": "Set the severity level for Rust panic diagnostics.",
           "order": 1
         },
-        "rustPanicHighlighter.iconPath": {
-          "type": "string",
-          "default": "",
-          "description": "Specify the path to the icon (SVG only) to display at the end of the line.",
-          "pattern": "^$|^.*\\.svg$",
+        "icon.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable the icon display at the end of the line.",
           "order": 2
         },
-        "rustPanicHighlighter.iconWidth": {
+        "icon.path": {
           "type": "string",
-          "default": "14px",
-          "description": "Specify the width of the icon in pixels. Ensure that the SVG does not have a default width set, as this will override the configured size.",
+          "default": "default",
+          "description": "Specify the path to the icon to display at the end of the line. It is recommended to use an SVG file. Use 'default' to load the extension's default icon.",
           "order": 3
         },
-        "rustPanicHighlighter.iconHeight": {
+        "icon.width": {
           "type": "string",
           "default": "14px",
-          "description": "Specify the height of the icon in pixels. Ensure that the SVG does not have a default height set, as this will override the configured size.",
+          "description": "Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size.",
           "order": 4
+        },
+        "icon.height": {
+          "type": "string",
+          "default": "14px",
+          "description": "Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size.",
+          "order": 5
         }
       }
     }

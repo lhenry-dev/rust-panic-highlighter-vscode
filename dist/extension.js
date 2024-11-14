@@ -41,24 +41,46 @@ var vscode = __toESM(require("vscode"));
 var defaultIconPath = "resources/broken.svg";
 var defaultIconWidth = "14px";
 var defaultIconHeight = "14px";
+function objectToCssString(settings) {
+  let value = "";
+  const cssString = Object.keys(settings).map((setting) => {
+    value = settings[setting];
+    if (typeof value === "string" || typeof value === "number") {
+      return `${setting}: ${value};`;
+    }
+  }).join(" ");
+  return cssString;
+}
 function activate(context) {
   let diagnosticCollection = vscode.languages.createDiagnosticCollection("rust-panic-highlighter");
   context.subscriptions.push(diagnosticCollection);
   function createDecorationType() {
-    let iconPathSetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.iconPath") || "";
-    if (!iconPathSetting.endsWith(".svg")) {
-      vscode.window.showWarningMessage("Invalid icon path: Only SVG files are supported. Using default icon.");
+    const isEnabled = vscode.workspace.getConfiguration().get("icon.enabled") ?? true;
+    if (!isEnabled) {
+      return vscode.window.createTextEditorDecorationType({});
+    }
+    let iconPathSetting = vscode.workspace.getConfiguration().get("icon.path") || "default";
+    if (iconPathSetting === "default") {
       iconPathSetting = context.asAbsolutePath(defaultIconPath);
     }
     const iconPath = vscode.Uri.file(iconPathSetting);
-    const iconWidthSetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.iconWidth") || defaultIconWidth;
-    const iconHeightSetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.iconHeight") || defaultIconHeight;
+    const iconWidthSetting = vscode.workspace.getConfiguration().get("icon.width") || defaultIconWidth;
+    const iconHeightSetting = vscode.workspace.getConfiguration().get("icon.height") || defaultIconHeight;
+    const topValue = parseInt(iconWidthSetting) * 0.5;
+    const defaultCss = {
+      position: "absolute",
+      top: `-${topValue}px`,
+      ["z-index"]: 1,
+      ["pointer-events"]: "none"
+    };
+    const defaultCssString = objectToCssString(defaultCss);
     return vscode.window.createTextEditorDecorationType({
       after: {
         contentIconPath: iconPath,
+        textDecoration: `none; ${defaultCssString}`,
         width: iconWidthSetting,
         height: iconHeightSetting,
-        margin: "0 10px"
+        margin: "0 1rem"
       }
     });
   }
@@ -75,10 +97,12 @@ function activate(context) {
     }
   });
   vscode.workspace.onDidCloseTextDocument((doc) => {
-    diagnosticCollection.delete(doc.uri);
+    if (doc.languageId === "rust") {
+      diagnosticCollection.delete(doc.uri);
+    }
   });
   vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration("rustPanicHighlighter.iconPath") || event.affectsConfiguration("rustPanicHighlighter.iconWidth") || event.affectsConfiguration("rustPanicHighlighter.iconHeight")) {
+    if (event.affectsConfiguration("icon.enabled") || event.affectsConfiguration("icon.path") || event.affectsConfiguration("icon.width") || event.affectsConfiguration("icon.height")) {
       decorationType.dispose();
       decorationType = createDecorationType();
       context.subscriptions.push(decorationType);
@@ -94,7 +118,7 @@ function updateDiagnostics(doc, diagnosticCollection, decorationType) {
   let diagnostics = [];
   let editor = vscode.window.activeTextEditor;
   let rangesToDecorate = [];
-  const severitySetting = vscode.workspace.getConfiguration().get("rustPanicHighlighter.diagnosticSeverity");
+  const severitySetting = vscode.workspace.getConfiguration().get("diagnostic.severity");
   let severity;
   switch (severitySetting) {
     case "Error":
@@ -116,29 +140,43 @@ function updateDiagnostics(doc, diagnosticCollection, decorationType) {
     if (line.text.trimStart().startsWith("//")) {
       continue;
     }
-    if (line.text.includes("panic!") || line.text.includes("unwrap(") || line.text.includes("expect(")) {
+    if (line.text.includes("panic!(") || line.text.includes("unwrap()") || line.text.includes("expect(")) {
       let diagnosticMessage = "";
-      if (line.text.includes("panic!")) {
+      if (line.text.includes("panic!(")) {
         diagnosticMessage = "This line contains a 'panic!' which can cause a runtime panic.";
-      } else if (line.text.includes("unwrap(")) {
+      } else if (line.text.includes("unwrap()")) {
         diagnosticMessage = "This line contains an 'unwrap()', which will panic if the result is None or Err.";
       } else if (line.text.includes("expect(")) {
         diagnosticMessage = "This line contains an 'expect()', which will panic if the result is None or Err.";
       }
+      let startIndex = 0;
+      if (line.text.includes("panic!(")) {
+        startIndex = line.text.indexOf("panic!(");
+      } else if (line.text.includes("unwrap()")) {
+        startIndex = line.text.indexOf("unwrap()");
+      } else if (line.text.includes("expect(")) {
+        startIndex = line.text.indexOf("expect(");
+      }
+      const range = new vscode.Range(i, startIndex, i, line.text.length);
+      rangesToDecorate.push(range);
       let diagnostic = new vscode.Diagnostic(
-        line.range,
+        range,
         diagnosticMessage,
         severity
       );
       diagnostics.push(diagnostic);
-      const range = new vscode.Range(i, line.text.length, i, line.text.length);
-      rangesToDecorate.push(range);
     }
   }
-  if (editor && rangesToDecorate.length > 0) {
-    editor.setDecorations(decorationType, rangesToDecorate);
+  if (editor) {
+    if (rangesToDecorate.length > 0) {
+      editor.setDecorations(decorationType, rangesToDecorate);
+    } else {
+      editor.setDecorations(decorationType, []);
+    }
   }
-  if (diagnostics.length > 0) {
+  if (diagnostics.length === 0) {
+    diagnosticCollection.delete(doc.uri);
+  } else {
     diagnosticCollection.set(doc.uri, diagnostics);
   }
 }
