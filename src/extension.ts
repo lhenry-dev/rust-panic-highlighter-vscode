@@ -39,9 +39,45 @@ function calculateEditorLineHeight(): number {
 
 const getIconPath = (iconPathSetting: string, width: string, height: string) => {
 	const ext = path.extname(iconPathSetting).toLowerCase();
-	const supportedFormats = ['.gif', '.png', '.jpg', '.jpeg'];
+	const supportedFormats = ['.gif', '.png', '.jpg', '.jpeg', '.svg'];
 
 	if (supportedFormats.includes(ext)) {
+		// Si le fichier est un SVG
+		if (ext === '.svg') {
+			try {
+				const svgContent = fs.readFileSync(iconPathSetting, 'utf8');
+
+				// Modification de la balise <svg> pour inclure ou remplacer width et height
+				const modifiedSvgContent = svgContent.replace(
+					/<svg([^>]*)>/,
+					(_: string, svgAttributes: string) => {
+						const hasWidth = /width\s*=\s*["'].*?["']/.test(svgAttributes);
+						const hasHeight = /height\s*=\s*["'].*?["']/.test(svgAttributes);
+
+						// Ajouter ou modifier les attributs width et height
+						const newAttributes = svgAttributes
+							+ (hasWidth ? '' : ` width="${width}"`)
+							+ (hasHeight ? '' : ` height="${height}"`);
+
+						return `<svg${newAttributes}>`;
+					}
+				);
+
+				const tempDir = os.tmpdir();
+				const tempSvgPath = path.join(tempDir, `icon_tmp.svg`);
+
+				// Écriture du SVG modifié dans un fichier temporaire
+				fs.writeFileSync(tempSvgPath, modifiedSvgContent, 'utf8');
+
+				// Retourne le chemin du fichier temporaire SVG modifié
+				return tempSvgPath;
+			} catch (error) {
+				console.error("Erreur lors du traitement du fichier SVG:", error);
+				throw new Error(`Impossible de traiter le fichier SVG : ${iconPathSetting}`);
+			}
+		}
+
+		// Si le fichier est un format d'image classique (non SVG)
 		const iconData = fs.readFileSync(iconPathSetting);
 		const base64Data = iconData.toString('base64');
 
@@ -61,6 +97,7 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 				throw new Error(`Format d'image non pris en charge : ${ext}`);
 		}
 
+		// Crée un SVG contenant l'image encodée en base64
 		const svgContent = `
             <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
                 <image href="data:${mimeType};base64,${base64Data}" width="${width}" height="${height}"/>
@@ -72,14 +109,14 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 
 		fs.writeFileSync(tempSvgPath, svgContent, 'utf8');
 
-		// return vscode.Uri.file(tempSvgPath);
+		// Retourne le chemin du fichier temporaire SVG
 		return tempSvgPath;
 	}
 
 	// Si le format n'est pas pris en charge, renvoyer le chemin original
-	// return vscode.Uri.file(iconPathSetting);
 	return iconPathSetting;
 };
+
 
 export function activate(context: vscode.ExtensionContext) {
 	let diagnosticCollection = vscode.languages.createDiagnosticCollection('rust-panic-highlighter');
@@ -110,12 +147,9 @@ export function activate(context: vscode.ExtensionContext) {
 		const lineHeight = calculateEditorLineHeight();
 		const iconHeight = iconsize.height;
 
-		console.log(`iconHeight: ${iconsize.height}`);
-		console.log(`lineWidth: ${iconsize.width}`);
-
-		const topValue = iconHeight <= lineHeight
-			? (lineHeight - iconHeight) / 2
-			: -(iconHeight - lineHeight) / 2;
+		let topValue = iconHeight <= lineHeight
+			? (iconHeight - lineHeight / 4) / 2
+			: -((iconHeight - lineHeight / 4) / 2);
 
 		const defaultCss = {
 			position: 'absolute',
@@ -208,12 +242,12 @@ function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection: vscod
 			continue;
 		}
 
-		if (line.text.includes("panic!(") || line.text.includes("unwrap()") || line.text.includes("expect(")) {
+		if (line.text.includes("panic!(") || line.text.includes("unwrap(") || line.text.includes("expect(")) {
 			let diagnosticMessage = "";
 
 			if (line.text.includes("panic!(")) {
 				diagnosticMessage = "This line contains a 'panic!' which can cause a runtime panic.";
-			} else if (line.text.includes("unwrap()")) {
+			} else if (line.text.includes("unwrap(")) {
 				diagnosticMessage = "This line contains an 'unwrap()', which will panic if the result is None or Err.";
 			} else if (line.text.includes("expect(")) {
 				diagnosticMessage = "This line contains an 'expect()', which will panic if the result is None or Err.";
@@ -222,8 +256,8 @@ function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection: vscod
 			let startIndex = 0;
 			if (line.text.includes("panic!(")) {
 				startIndex = line.text.indexOf("panic!(");
-			} else if (line.text.includes("unwrap()")) {
-				startIndex = line.text.indexOf("unwrap()");
+			} else if (line.text.includes("unwrap(")) {
+				startIndex = line.text.indexOf("unwrap(");
 			} else if (line.text.includes("expect(")) {
 				startIndex = line.text.indexOf("expect(");
 			}
