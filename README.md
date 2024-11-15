@@ -1,71 +1,59 @@
-# rust-panic-highlighter README
+# Rust Panic Highlighter
 
-This is the README for your extension "rust-panic-highlighter". After writing up a brief description, we recommend including the following sections.
+The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines of code containing common panic triggers in Rust, such as `panic!()`, `unwrap()`, and `expect()`. It provides visual warnings directly in the editor to help developers identify potentially dangerous code that could cause runtime panics.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Highlight Panic Triggers**: Highlights occurrences of `panic!()`, `unwrap()`, and `expect()` in Rust code.
+- **Customizable Icon**: You can choose a custom icon to be displayed next to the panic triggers, with adjustable size and positioning.
 
-For example if there is an image subfolder under your extension project workspace:
+<!-- ![Rust Panic Highlighter](images/panic-highlighter.png) *(replace with actual image path)* -->
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+> Tip: This extension allows for easy identification of potentially unsafe code in Rust, helping developers avoid runtime errors caused by panics.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- **Visual Studio Code**: This extension works with Visual Studio Code, version 1.95 or higher.
+- **Rust Development Environment**: You need to have a Rust development environment set up (e.g., `rustup`, `cargo`).
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+This extension adds several configurable settings to control its behavior:
 
-For example:
+* **`rustPanicHighlighter.icon.enabled`**: Enable/disable the panic icon feature. Default is `true`.
+* **`rustPanicHighlighter.icon.path`**: Path to the icon file to use for panic triggers. Defaults to a built-in `panic-icon.gif`.
+* **`rustPanicHighlighter.icon.width`**: Width of the panic icon in pixels. Defaults to `64`.
+* **`rustPanicHighlighter.icon.height`**: Height of the panic icon in pixels. Defaults to `64`.
+* **`rustPanicHighlighter.icon.adjustTopPosition`**: Adjust the vertical positioning of the panic icon. Default is `0`.
 
-This extension contributes the following settings:
+For example, you can add these settings to your `settings.json`:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+```json
+"rustPanicHighlighter.icon.enabled": true,
+"rustPanicHighlighter.icon.path": "resources/my-icon.gif",
+"rustPanicHighlighter.icon.width": 64,
+"rustPanicHighlighter.icon.height": 64,
+"rustPanicHighlighter.icon.adjustTopPosition": 0
+```
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- The extension currently only works with Rust files.
+- Icons may not display correctly if the specified image file is not in a supported format (`.gif`, `.png`, `.jpg`, `.jpeg`, `.svg`).
+- If the icon file has any issues (e.g., file not found or invalid format), the default icon will be used.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+- Initial release of **Rust Panic Highlighter**.
+- Features include highlighting of panic triggers (`panic!()`, `unwrap()`, `expect()`) with a customizable icon.
+- Configurable settings for icon path, size, and position.
 
 ### 1.0.1
 
-Fixed issue #.
+- Fixed an issue with SVG icon handling.
 
 ### 1.1.0
 
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+- Added configuration options for line height adjustment.

@@ -66,11 +66,11 @@
           "order": 5
         },
         "icon.adjustTopPosition": {
-          "type": "number",
-          "default": 0,
-          "description": "Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment.",
-          "order": 6
-        }
+        "type": "number",
+        "default": 0,
+        "description": "Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment. This setting compensates for potential alignment issues caused by differences in editor configurations (such as font size, line height, etc.). Depending on the user's setup, icons might appear slightly misaligned, and this option allows you to manually adjust their vertical position to achieve the best visual result.",
+        "order": 6
+      }
       }
     }
   },
