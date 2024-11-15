@@ -20,11 +20,17 @@ The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines
 
 This extension adds several configurable settings to control its behavior:
 
-* **`rustPanicHighlighter.icon.enabled`**: Enable/disable the panic icon feature. Default is `true`.
-* **`rustPanicHighlighter.icon.path`**: Path to the icon file to use for panic triggers. Defaults to a built-in `panic-icon.gif`.
-* **`rustPanicHighlighter.icon.width`**: Width of the panic icon in pixels. Defaults to `64`.
-* **`rustPanicHighlighter.icon.height`**: Height of the panic icon in pixels. Defaults to `64`.
-* **`rustPanicHighlighter.icon.adjustTopPosition`**: Adjust the vertical positioning of the panic icon. Default is `0`.
+* **`rustPanicHighlighter.diagnostic.severity`**: Set the severity level for Rust panic diagnostics. Options are: `Error`, `Warning`, `Information`, and `Hint`. Default is `Warning`.
+
+* **`rustPanicHighlighter.icon.enabled`**: Enable or disable the icon display at the end of the line. Default is `true`.
+
+* **`rustPanicHighlighter.icon.path`**: Specify the path to the icon to display at the end of the line. It is recommended to use an SVG file. Use `'default'` to load the extension's default icon. Default is `'default'`.
+
+* **`rustPanicHighlighter.icon.width`**: Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size. Default is `64`.
+
+* **`rustPanicHighlighter.icon.height`**: Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size. Default is `64`.
+
+* **`rustPanicHighlighter.icon.adjustTopPosition`**: Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment. This setting compensates for potential alignment issues caused by differences in editor configurations (such as font size, line height, etc.). Depending on the user's setup, icons might appear slightly misaligned, and this option allows you to manually adjust their vertical position to achieve the best visual result. Default is `0`.
 
 For example, you can add these settings to your `settings.json`:
 
