@@ -53,13 +53,13 @@
         },
         "icon.width": {
           "type": "string",
-          "default": "14px",
+          "default": "64px",
           "description": "Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size.",
           "order": 4
         },
         "icon.height": {
           "type": "string",
-          "default": "14px",
+          "default": "64px",
           "description": "Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size.",
           "order": 5
         }

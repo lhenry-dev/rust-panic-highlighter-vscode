@@ -1364,8 +1364,29 @@ function calculateEditorLineHeight() {
 }
 var getIconPath = (iconPathSetting, width, height) => {
   const ext = path.extname(iconPathSetting).toLowerCase();
-  const supportedFormats = [".gif", ".png", ".jpg", ".jpeg"];
+  const supportedFormats = [".gif", ".png", ".jpg", ".jpeg", ".svg"];
   if (supportedFormats.includes(ext)) {
+    if (ext === ".svg") {
+      try {
+        const svgContent2 = fs.readFileSync(iconPathSetting, "utf8");
+        const modifiedSvgContent = svgContent2.replace(
+          /<svg([^>]*)>/,
+          (_, svgAttributes) => {
+            const hasWidth = /width\s*=\s*["'].*?["']/.test(svgAttributes);
+            const hasHeight = /height\s*=\s*["'].*?["']/.test(svgAttributes);
+            const newAttributes = svgAttributes + (hasWidth ? "" : ` width="${width}"`) + (hasHeight ? "" : ` height="${height}"`);
+            return `<svg${newAttributes}>`;
+          }
+        );
+        const tempDir2 = os.tmpdir();
+        const tempSvgPath2 = path.join(tempDir2, `icon_tmp.svg`);
+        fs.writeFileSync(tempSvgPath2, modifiedSvgContent, "utf8");
+        return tempSvgPath2;
+      } catch (error) {
+        console.error("Erreur lors du traitement du fichier SVG:", error);
+        throw new Error(`Impossible de traiter le fichier SVG : ${iconPathSetting}`);
+      }
+    }
     const iconData = fs.readFileSync(iconPathSetting);
     const base64Data = iconData.toString("base64");
     let mimeType = "";
@@ -1414,9 +1435,7 @@ function activate(context) {
     const iconPath = vscode.Uri.file(iconPath_tmp);
     const lineHeight = calculateEditorLineHeight();
     const iconHeight = iconsize.height;
-    console.log(`iconHeight: ${iconsize.height}`);
-    console.log(`lineWidth: ${iconsize.width}`);
-    const topValue = iconHeight <= lineHeight ? (lineHeight - iconHeight) / 2 : -(iconHeight - lineHeight) / 2;
+    let topValue = iconHeight <= lineHeight ? (iconHeight - lineHeight / 4) / 2 : -((iconHeight - lineHeight / 4) / 2);
     const defaultCss = {
       position: "absolute",
       top: `${topValue}px`,
@@ -1490,11 +1509,11 @@ function updateDiagnostics(doc, diagnosticCollection, decorationType) {
     if (line.text.trimStart().startsWith("//")) {
       continue;
     }
-    if (line.text.includes("panic!(") || line.text.includes("unwrap()") || line.text.includes("expect(")) {
+    if (line.text.includes("panic!(") || line.text.includes("unwrap(") || line.text.includes("expect(")) {
       let diagnosticMessage = "";
       if (line.text.includes("panic!(")) {
         diagnosticMessage = "This line contains a 'panic!' which can cause a runtime panic.";
-      } else if (line.text.includes("unwrap()")) {
+      } else if (line.text.includes("unwrap(")) {
         diagnosticMessage = "This line contains an 'unwrap()', which will panic if the result is None or Err.";
       } else if (line.text.includes("expect(")) {
         diagnosticMessage = "This line contains an 'expect()', which will panic if the result is None or Err.";
@@ -1502,8 +1521,8 @@ function updateDiagnostics(doc, diagnosticCollection, decorationType) {
       let startIndex = 0;
       if (line.text.includes("panic!(")) {
         startIndex = line.text.indexOf("panic!(");
-      } else if (line.text.includes("unwrap()")) {
-        startIndex = line.text.indexOf("unwrap()");
+      } else if (line.text.includes("unwrap(")) {
+        startIndex = line.text.indexOf("unwrap(");
       } else if (line.text.includes("expect(")) {
         startIndex = line.text.indexOf("expect(");
       }
