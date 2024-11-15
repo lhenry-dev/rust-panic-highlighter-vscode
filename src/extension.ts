@@ -119,22 +119,22 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(diagnosticCollection);
 
 	function createDecorationType(): vscode.TextEditorDecorationType {
-		const isEnabled = vscode.workspace.getConfiguration().get<boolean>('icon.enabled') ?? true;
+		const isEnabled = vscode.workspace.getConfiguration().get<boolean>('rustPanicHighlighter.icon.enabled') ?? true;
 
 		if (!isEnabled) {
 			return vscode.window.createTextEditorDecorationType({});
 		}
 
-		let iconPathSetting = vscode.workspace.getConfiguration().get<string>('icon.path') || 'default';
+		let iconPathSetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.icon.path') || 'default';
 
 		if (iconPathSetting === "default") {
 			iconPathSetting = context.asAbsolutePath(defaultIconPath);
 		}
 
-		const iconWidthSetting = vscode.workspace.getConfiguration().get<number>('icon.width') || defaultIconWidth;
-		const iconHeightSetting = vscode.workspace.getConfiguration().get<number>('icon.height') || defaultIconHeight;
+		const iconWidthSetting = vscode.workspace.getConfiguration().get<number>('rustPanicHighlighter.icon.width') || defaultIconWidth;
+		const iconHeightSetting = vscode.workspace.getConfiguration().get<number>('rustPanicHighlighter.icon.height') || defaultIconHeight;
 
-		const adjustTopPosition = vscode.workspace.getConfiguration().get<number>('icon.adjustTopPosition') || defaultAdjustTopPosition;
+		const adjustTopPosition = vscode.workspace.getConfiguration().get<number>('rustPanicHighlighter.icon.adjustTopPosition') || defaultAdjustTopPosition;
 
 		if (iconWidthSetting !== undefined && iconWidthSetting <= 0) {
 			throw new Error("icon.width must be a positive number.");
@@ -200,11 +200,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.workspace.onDidChangeConfiguration(event => {
-		if (event.affectsConfiguration('icon.enabled') ||
-			event.affectsConfiguration('icon.path') ||
-			event.affectsConfiguration('icon.width') ||
-			event.affectsConfiguration('icon.height') ||
-			event.affectsConfiguration('icon.adjustTopPosition')) {
+		if (event.affectsConfiguration('rustPanicHighlighter.icon.enabled') ||
+			event.affectsConfiguration('rustPanicHighlighter.icon.path') ||
+			event.affectsConfiguration('rustPanicHighlighter.icon.width') ||
+			event.affectsConfiguration('rustPanicHighlighter.icon.height') ||
+			event.affectsConfiguration('rustPanicHighlighter.icon.adjustTopPosition')) {
 
 			decorationType.dispose();
 			decorationType = createDecorationType();
@@ -224,7 +224,7 @@ function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection: vscod
 	let editor = vscode.window.activeTextEditor;
 	let rangesToDecorate: vscode.Range[] = [];
 
-	const severitySetting = vscode.workspace.getConfiguration().get<string>('diagnostic.severity');
+	const severitySetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.diagnostic.severity');
 	let severity: vscode.DiagnosticSeverity;
 
 	switch (severitySetting) {

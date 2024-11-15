@@ -11,69 +11,6 @@
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
-  "contributes": {
-    "languages": [
-      {
-        "id": "rust",
-        "aliases": [
-          "Rust",
-          "rust"
-        ],
-        "extensions": [
-          ".rs"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "configuration": {
-      "properties": {
-        "diagnostic.severity": {
-          "type": "string",
-          "enum": [
-            "Error",
-            "Warning",
-            "Information",
-            "Hint"
-          ],
-          "default": "Warning",
-          "description": "Set the severity level for Rust panic diagnostics.",
-          "order": 1
-        },
-        "icon.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable or disable the icon display at the end of the line.",
-          "order": 2
-        },
-        "icon.path": {
-          "type": "string",
-          "default": "default",
-          "description": "Specify the path to the icon to display at the end of the line. It is recommended to use an SVG file. Use 'default' to load the extension's default icon.",
-          "pattern": "^(default|.*\\.(gif|png|jpe?g|svg))$",
-          "patternErrorMessage": "The value must be 'default' or a path ending with .gif, .png, .jpg, .jpeg, or .svg.",
-          "order": 3
-        },
-        "icon.width": {
-          "type": "number",
-          "default": 64,
-          "description": "Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size.",
-          "order": 4
-        },
-        "icon.height": {
-          "type": "number",
-          "default": 64,
-          "description": "Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size.",
-          "order": 5
-        },
-        "icon.adjustTopPosition": {
-        "type": "number",
-        "default": 0,
-        "description": "Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment. This setting compensates for potential alignment issues caused by differences in editor configurations (such as font size, line height, etc.). Depending on the user's setup, icons might appear slightly misaligned, and this option allows you to manually adjust their vertical position to achieve the best visual result.",
-        "order": 6
-      }
-      }
-    }
-  },
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
@@ -103,5 +40,78 @@
   },
   "dependencies": {
     "image-size": "^1.1.1"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "rust",
+        "aliases": [
+          "Rust",
+          "rust"
+        ],
+        "extensions": [
+          ".rs"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "Diagnostic Severity",
+        "order": 0,
+        "properties": {
+          "rustPanicHighlighter.diagnostic.severity": {
+            "type": "string",
+            "enum": [
+              "Error",
+              "Warning",
+              "Information",
+              "Hint"
+            ],
+            "default": "Warning",
+            "description": "Set the severity level for Rust panic diagnostics.",
+            "order": 0
+          }
+        }
+      },
+      {
+        "title": "Icon Settings",
+        "order": 1,
+        "properties": {
+          "rustPanicHighlighter.icon.enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable or disable the icon display at the end of the line.",
+            "order": 0
+          },
+          "rustPanicHighlighter.icon.path": {
+            "type": "string",
+            "default": "default",
+            "description": "Specify the path to the icon to display at the end of the line. It is recommended to use an SVG file. Use 'default' to load the extension's default icon.",
+            "pattern": "^(default|.*\\.(gif|png|jpe?g|svg))$",
+            "patternErrorMessage": "The value must be 'default' or a path ending with .gif, .png, .jpg, .jpeg, or .svg.",
+            "order": 1
+          },
+          "rustPanicHighlighter.icon.width": {
+            "type": "number",
+            "default": 64,
+            "description": "Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size.",
+            "order": 2
+          },
+          "rustPanicHighlighter.icon.height": {
+            "type": "number",
+            "default": 64,
+            "description": "Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size.",
+            "order": 3
+          },
+          "rustPanicHighlighter.icon.adjustTopPosition": {
+            "type": "number",
+            "default": 0,
+            "description": "Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment. This setting compensates for potential alignment issues caused by differences in editor configurations (such as font size, line height, etc.). Depending on the user's setup, icons might appear slightly misaligned, and this option allows you to manually adjust their vertical position to achieve the best visual result.",
+            "order": 4
+          }
+        }
+      }
+    ]
   }
 }
