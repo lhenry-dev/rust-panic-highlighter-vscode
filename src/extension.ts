@@ -67,8 +67,8 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 
 				return tempSvgPath;
 			} catch (error) {
-				console.error("Erreur lors du traitement du fichier SVG:", error);
-				throw new Error(`Impossible de traiter le fichier SVG : ${iconPathSetting}`);
+				console.error("Error processing the SVG file:", error);
+				throw new Error(`Unable to process the SVG file: ${iconPathSetting}`);
 			}
 		}
 
@@ -89,7 +89,7 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 					mimeType = 'image/jpeg';
 					break;
 				default:
-					throw new Error(`Format d'image non pris en charge : ${ext}`);
+					throw new Error(`Unsupported image format: ${ext}`);
 			}
 
 			const svgContent = `
@@ -105,12 +105,12 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 
 			return tempSvgPath;
 		} catch (error) {
-			console.error('Une erreur est survenue lors du traitement de l\'icône :', error);
-			throw new Error('Une erreur est survenue lors du traitement de l\'icône.');
+			console.error('An error occurred while processing the icon:', error);
+			throw new Error(`An error occurred while processing the icon: ${iconPathSetting}`);
 		}
 	}
 
-	return iconPathSetting;
+	throw new Error(`Unsupported image format: ${ext}`);
 };
 
 
