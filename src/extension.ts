@@ -1,20 +1,20 @@
 import * as vscode from 'vscode';
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const sizeOf = require("image-size")
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import sizeOf from "image-size";
 
 export const defaultIconPath = 'resources/panic-icon.gif';
-// export const defaultIconPath = 'resources/broken.svg';
-export const defaultIconWidth = '14px';
-export const defaultIconHeight = '14px';
+export const defaultIconWidth = 64;
+export const defaultIconHeight = 64;
+export const defaultAdjustTopPosition = 0;
 
 function objectToCssString(settings: any): string {
 	let value = '';
 	const cssString = Object.keys(settings).map(setting => {
 		value = settings[setting];
 		if (typeof value === 'string' || typeof value === 'number') {
-			return `${setting}: ${value};`
+			return `${setting}: ${value};`;
 		}
 	}).join(' ');
 
@@ -42,19 +42,16 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 	const supportedFormats = ['.gif', '.png', '.jpg', '.jpeg', '.svg'];
 
 	if (supportedFormats.includes(ext)) {
-		// Si le fichier est un SVG
 		if (ext === '.svg') {
 			try {
 				const svgContent = fs.readFileSync(iconPathSetting, 'utf8');
 
-				// Modification de la balise <svg> pour inclure ou remplacer width et height
 				const modifiedSvgContent = svgContent.replace(
 					/<svg([^>]*)>/,
 					(_: string, svgAttributes: string) => {
 						const hasWidth = /width\s*=\s*["'].*?["']/.test(svgAttributes);
 						const hasHeight = /height\s*=\s*["'].*?["']/.test(svgAttributes);
 
-						// Ajouter ou modifier les attributs width et height
 						const newAttributes = svgAttributes
 							+ (hasWidth ? '' : ` width="${width}"`)
 							+ (hasHeight ? '' : ` height="${height}"`);
@@ -66,10 +63,8 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 				const tempDir = os.tmpdir();
 				const tempSvgPath = path.join(tempDir, `icon_tmp.svg`);
 
-				// Écriture du SVG modifié dans un fichier temporaire
 				fs.writeFileSync(tempSvgPath, modifiedSvgContent, 'utf8');
 
-				// Retourne le chemin du fichier temporaire SVG modifié
 				return tempSvgPath;
 			} catch (error) {
 				console.error("Erreur lors du traitement du fichier SVG:", error);
@@ -77,43 +72,44 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 			}
 		}
 
-		// Si le fichier est un format d'image classique (non SVG)
-		const iconData = fs.readFileSync(iconPathSetting);
-		const base64Data = iconData.toString('base64');
+		try {
+			const iconData = fs.readFileSync(iconPathSetting);
+			const base64Data = iconData.toString('base64');
 
-		let mimeType = '';
-		switch (ext) {
-			case '.gif':
-				mimeType = 'image/gif';
-				break;
-			case '.png':
-				mimeType = 'image/png';
-				break;
-			case '.jpg':
-			case '.jpeg':
-				mimeType = 'image/jpeg';
-				break;
-			default:
-				throw new Error(`Format d'image non pris en charge : ${ext}`);
-		}
+			let mimeType = '';
+			switch (ext) {
+				case '.gif':
+					mimeType = 'image/gif';
+					break;
+				case '.png':
+					mimeType = 'image/png';
+					break;
+				case '.jpg':
+				case '.jpeg':
+					mimeType = 'image/jpeg';
+					break;
+				default:
+					throw new Error(`Format d'image non pris en charge : ${ext}`);
+			}
 
-		// Crée un SVG contenant l'image encodée en base64
-		const svgContent = `
+			const svgContent = `
             <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
                 <image href="data:${mimeType};base64,${base64Data}" width="${width}" height="${height}"/>
             </svg>
         `;
 
-		const tempDir = os.tmpdir();
-		const tempSvgPath = path.join(tempDir, `icon_tmp.svg`);
+			const tempDir = os.tmpdir();
+			const tempSvgPath = path.join(tempDir, `icon_tmp.svg`);
 
-		fs.writeFileSync(tempSvgPath, svgContent, 'utf8');
+			fs.writeFileSync(tempSvgPath, svgContent, 'utf8');
 
-		// Retourne le chemin du fichier temporaire SVG
-		return tempSvgPath;
+			return tempSvgPath;
+		} catch (error) {
+			console.error('Une erreur est survenue lors du traitement de l\'icône :', error);
+			throw new Error('Une erreur est survenue lors du traitement de l\'icône.');
+		}
 	}
 
-	// Si le format n'est pas pris en charge, renvoyer le chemin original
 	return iconPathSetting;
 };
 
@@ -135,21 +131,34 @@ export function activate(context: vscode.ExtensionContext) {
 			iconPathSetting = context.asAbsolutePath(defaultIconPath);
 		}
 
-		const iconWidthSetting = vscode.workspace.getConfiguration().get<string>('icon.width') || defaultIconWidth;
-		const iconHeightSetting = vscode.workspace.getConfiguration().get<string>('icon.height') || defaultIconHeight;
-		// const iconPath = getIconPath(iconPathSetting, iconWidthSetting, iconHeightSetting);
-		// const iconPath = vscode.Uri.file(iconPathSetting);
+		const iconWidthSetting = vscode.workspace.getConfiguration().get<number>('icon.width') || defaultIconWidth;
+		const iconHeightSetting = vscode.workspace.getConfiguration().get<number>('icon.height') || defaultIconHeight;
 
-		const iconPath_tmp = getIconPath(iconPathSetting, iconWidthSetting, iconHeightSetting);
+		const adjustTopPosition = vscode.workspace.getConfiguration().get<number>('icon.adjustTopPosition') || defaultAdjustTopPosition;
+
+		if (iconWidthSetting !== undefined && iconWidthSetting <= 0) {
+			throw new Error("icon.width must be a positive number.");
+		}
+
+		if (iconHeightSetting !== undefined && iconHeightSetting <= 0) {
+			throw new Error("icon.height must be a positive number.");
+		}
+
+		const iconWidthWithPx = `${iconWidthSetting}px`;
+		const iconHeightWithPx = `${iconHeightSetting}px`;
+
+		const iconPath_tmp = getIconPath(iconPathSetting, iconWidthWithPx, iconHeightWithPx);
 		const iconsize = sizeOf(iconPath_tmp);
 		const iconPath = vscode.Uri.file(iconPath_tmp);
 
 		const lineHeight = calculateEditorLineHeight();
-		const iconHeight = iconsize.height;
+		const iconHeight = iconsize.height ?? defaultIconHeight;
 
 		let topValue = iconHeight <= lineHeight
 			? (iconHeight - lineHeight / 4) / 2
 			: -((iconHeight - lineHeight / 4) / 2);
+
+		topValue = topValue + adjustTopPosition;
 
 		const defaultCss = {
 			position: 'absolute',
@@ -164,8 +173,6 @@ export function activate(context: vscode.ExtensionContext) {
 			after: {
 				contentIconPath: iconPath,
 				textDecoration: `none; ${defaultCssString}`,
-				// width: iconWidthSetting,
-				// height: iconHeightSetting,
 				margin: '0 1rem',
 			},
 		});
@@ -196,7 +203,8 @@ export function activate(context: vscode.ExtensionContext) {
 		if (event.affectsConfiguration('icon.enabled') ||
 			event.affectsConfiguration('icon.path') ||
 			event.affectsConfiguration('icon.width') ||
-			event.affectsConfiguration('icon.height')) {
+			event.affectsConfiguration('icon.height') ||
+			event.affectsConfiguration('icon.adjustTopPosition')) {
 
 			decorationType.dispose();
 			decorationType = createDecorationType();

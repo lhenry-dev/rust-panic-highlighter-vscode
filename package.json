@@ -49,19 +49,27 @@
           "type": "string",
           "default": "default",
           "description": "Specify the path to the icon to display at the end of the line. It is recommended to use an SVG file. Use 'default' to load the extension's default icon.",
+          "pattern": "^(default|.*\\.(gif|png|jpe?g|svg))$",
+          "patternErrorMessage": "The value must be 'default' or a path ending with .gif, .png, .jpg, .jpeg, or .svg.",
           "order": 3
         },
         "icon.width": {
-          "type": "string",
-          "default": "64px",
+          "type": "number",
+          "default": 64,
           "description": "Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size.",
           "order": 4
         },
         "icon.height": {
-          "type": "string",
-          "default": "64px",
+          "type": "number",
+          "default": 64,
           "description": "Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size.",
           "order": 5
+        },
+        "icon.adjustTopPosition": {
+          "type": "number",
+          "default": 0,
+          "description": "Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment.",
+          "order": 6
         }
       }
     }
