@@ -24,9 +24,7 @@ This extension adds several configurable settings to control its behavior:
 
 * **`rustPanicHighlighter.icon.path`**: Specify the path to the icon to display at the end of the line. It is recommended to use an SVG file. Use `'default'` to load the extension's default icon. Default is `'default'`.
 
-* **`rustPanicHighlighter.icon.width`**: Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size. Default is `64`.
-
-* **`rustPanicHighlighter.icon.height`**: Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size. Default is `64`.
+* **`rustPanicHighlighter.icon.size`**: Specify the size of the icon in pixels. This setting defines both the width and height, ensuring a square bounding box. In the case of an SVG, ensure that it does not have a default width or height set, as this may override the configured size. For non-square images, the aspect ratio will still be preserved within the bounding box. Default is `64`.
 
 * **`rustPanicHighlighter.icon.adjustTopPosition`**: Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment. This setting compensates for potential alignment issues caused by differences in editor configurations (such as font size, line height, etc.). Depending on the user's setup, icons might appear slightly misaligned, and this option allows you to manually adjust their vertical position to achieve the best visual result. Default is `0`.
 
