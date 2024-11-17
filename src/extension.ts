@@ -3,11 +3,15 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import sizeOf from "image-size";
+import { v4 as uuidv4 } from 'uuid';
 
+export const tmpFileName = 'rustPanicHighlighter_icon_tmp';
 export const defaultIconPath = 'resources/panic-icon.gif';
-export const defaultIconWidth = 64;
-export const defaultIconHeight = 64;
+export const defaultIconSize = 64;
 export const defaultAdjustTopPosition = 0;
+
+let tempFiles: string[] = [];
+let decorationType: vscode.TextEditorDecorationType;
 
 function objectToCssString(settings: any): string {
 	let value = '';
@@ -61,9 +65,15 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
 				);
 
 				const tempDir = os.tmpdir();
-				const tempSvgPath = path.join(tempDir, `icon_tmp.svg`);
+				const uniqueId = uuidv4();
+				const tempSvgPath = path.join(tempDir, `${tmpFileName}_${uniqueId}.svg`);
 
 				fs.writeFileSync(tempSvgPath, modifiedSvgContent, 'utf8');
+				tempFiles.push(tempSvgPath);
+
+				if (!fs.existsSync(tempSvgPath)) {
+					throw new Error(`Failed to create temporary file at ${tempSvgPath}`);
+				}
 
 				return tempSvgPath;
 			} catch (error) {
@@ -99,9 +109,15 @@ const getIconPath = (iconPathSetting: string, width: string, height: string) => 
         `;
 
 			const tempDir = os.tmpdir();
-			const tempSvgPath = path.join(tempDir, `icon_tmp.svg`);
+			const uniqueId = uuidv4();
+			const tempSvgPath = path.join(tempDir, `${tmpFileName}_${uniqueId}.svg`);
 
 			fs.writeFileSync(tempSvgPath, svgContent, 'utf8');
+			tempFiles.push(tempSvgPath);
+
+			if (!fs.existsSync(tempSvgPath)) {
+				throw new Error(`Failed to create temporary file at ${tempSvgPath}`);
+			}
 
 			return tempSvgPath;
 		} catch (error) {
@@ -131,28 +147,22 @@ export function activate(context: vscode.ExtensionContext) {
 			iconPathSetting = context.asAbsolutePath(defaultIconPath);
 		}
 
-		const iconWidthSetting = vscode.workspace.getConfiguration().get<number>('rustPanicHighlighter.icon.width') || defaultIconWidth;
-		const iconHeightSetting = vscode.workspace.getConfiguration().get<number>('rustPanicHighlighter.icon.height') || defaultIconHeight;
-
+		const iconSize = vscode.workspace.getConfiguration().get<number>('rustPanicHighlighter.icon.size') || defaultIconSize;
 		const adjustTopPosition = vscode.workspace.getConfiguration().get<number>('rustPanicHighlighter.icon.adjustTopPosition') || defaultAdjustTopPosition;
 
-		if (iconWidthSetting !== undefined && iconWidthSetting <= 0) {
-			throw new Error("icon.width must be a positive number.");
+		if (iconSize !== undefined && iconSize <= 0) {
+			throw new Error("icon.size must be a positive number.");
 		}
 
-		if (iconHeightSetting !== undefined && iconHeightSetting <= 0) {
-			throw new Error("icon.height must be a positive number.");
-		}
-
-		const iconWidthWithPx = `${iconWidthSetting}px`;
-		const iconHeightWithPx = `${iconHeightSetting}px`;
+		const iconWidthWithPx = `${iconSize}px`;
+		const iconHeightWithPx = `${iconSize}px`;
 
 		const iconPath_tmp = getIconPath(iconPathSetting, iconWidthWithPx, iconHeightWithPx);
 		const iconsize = sizeOf(iconPath_tmp);
 		const iconPath = vscode.Uri.file(iconPath_tmp);
 
 		const lineHeight = calculateEditorLineHeight();
-		const iconHeight = iconsize.height ?? defaultIconHeight;
+		const iconHeight = iconsize.height ?? defaultIconSize;
 
 		let topValue = iconHeight <= lineHeight
 			? (iconHeight - lineHeight / 4) / 2
@@ -178,7 +188,7 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	}
 
-	let decorationType = createDecorationType();
+	decorationType = createDecorationType();
 	context.subscriptions.push(decorationType);
 
 	vscode.workspace.onDidOpenTextDocument(doc => {
@@ -202,11 +212,16 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (event.affectsConfiguration('rustPanicHighlighter.icon.enabled') ||
 			event.affectsConfiguration('rustPanicHighlighter.icon.path') ||
-			event.affectsConfiguration('rustPanicHighlighter.icon.width') ||
-			event.affectsConfiguration('rustPanicHighlighter.icon.height') ||
+			event.affectsConfiguration('rustPanicHighlighter.icon.size') ||
 			event.affectsConfiguration('rustPanicHighlighter.icon.adjustTopPosition')) {
 
 			decorationType.dispose();
+
+			tempFiles.forEach(file => {
+				fs.promises.unlink(file);
+			});
+			tempFiles = [];
+
 			decorationType = createDecorationType();
 			context.subscriptions.push(decorationType);
 
