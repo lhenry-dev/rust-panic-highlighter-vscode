@@ -7,8 +7,6 @@ The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines
 - **Highlight Panic Triggers**: Highlights occurrences of `panic!()`, `unwrap()`, and `expect()` in Rust code.
 - **Customizable Icon**: You can choose a custom icon to be displayed next to the panic triggers, with adjustable size and positioning.
 
-<!-- ![Rust Panic Highlighter](images/panic-highlighter.png) *(replace with actual image path)* -->
-
 > Tip: This extension allows for easy identification of potentially unsafe code in Rust, helping developers avoid runtime errors caused by panics.
 
 ## Requirements
@@ -32,21 +30,12 @@ This extension adds several configurable settings to control its behavior:
 
 * **`rustPanicHighlighter.icon.adjustTopPosition`**: Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment. This setting compensates for potential alignment issues caused by differences in editor configurations (such as font size, line height, etc.). Depending on the user's setup, icons might appear slightly misaligned, and this option allows you to manually adjust their vertical position to achieve the best visual result. Default is `0`.
 
-For example, you can add these settings to your `settings.json`:
-
-```json
-"rustPanicHighlighter.icon.enabled": true,
-"rustPanicHighlighter.icon.path": "resources/my-icon.gif",
-"rustPanicHighlighter.icon.width": 64,
-"rustPanicHighlighter.icon.height": 64,
-"rustPanicHighlighter.icon.adjustTopPosition": 0
-```
-
 ## Known Issues
 
 - The extension currently only works with Rust files.
 - Icons may not display correctly if the specified image file is not in a supported format (`.gif`, `.png`, `.jpg`, `.jpeg`, `.svg`).
 - If the icon file has any issues (e.g., file not found or invalid format), the default icon will be used.
+- **Icons alignment issues:** Depending on your editor settings (e.g., font size, line height), the icon's vertical alignment might not appear as expected. To address this, the `adjustTopPosition` parameter has been added, allowing you to fine-tune the icon's vertical position manually for better alignment.
 
 ## Release Notes
 
@@ -55,11 +44,3 @@ For example, you can add these settings to your `settings.json`:
 - Initial release of **Rust Panic Highlighter**.
 - Features include highlighting of panic triggers (`panic!()`, `unwrap()`, `expect()`) with a customizable icon.
 - Configurable settings for icon path, size, and position.
-
-### 1.0.1
-
-- Fixed an issue with SVG icon handling.
-
-### 1.1.0
-
-- Added configuration options for line height adjustment.

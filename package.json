@@ -2,7 +2,8 @@
   "name": "rust-panic-highlighter",
   "displayName": "Rust Panic Highlighter",
   "description": "Highlights lines in Rust code that can panic",
-  "version": "0.0.1",
+  "publisher": "lhenryy",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -39,7 +40,8 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "image-size": "^1.1.1"
+    "image-size": "^1.1.1",
+    "uuid": "^11.0.3"
   },
   "contributes": {
     "languages": [
@@ -92,23 +94,17 @@
             "patternErrorMessage": "The value must be 'default' or a path ending with .gif, .png, .jpg, .jpeg, or .svg.",
             "order": 1
           },
-          "rustPanicHighlighter.icon.width": {
+          "rustPanicHighlighter.icon.size": {
             "type": "number",
             "default": 64,
-            "description": "Specify the width of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default width set, as it may override the configured size.",
+            "description": "Specify the size of the icon in pixels. This setting defines both the width and height, ensuring a square bounding box. In the case of an SVG, ensure that it does not have a default width or height set, as this may override the configured size. For non-square images, the aspect ratio will still be preserved within the bounding box.",
             "order": 2
-          },
-          "rustPanicHighlighter.icon.height": {
-            "type": "number",
-            "default": 64,
-            "description": "Specify the height of the icon in pixels. This setting is only applicable to SVG files. Ensure that the SVG does not have a default height set, as it may override the configured size.",
-            "order": 3
           },
           "rustPanicHighlighter.icon.adjustTopPosition": {
             "type": "number",
             "default": 0,
             "description": "Adjust the top position of the icon in pixels. Use a positive or negative number to fine-tune the vertical alignment. This setting compensates for potential alignment issues caused by differences in editor configurations (such as font size, line height, etc.). Depending on the user's setup, icons might appear slightly misaligned, and this option allows you to manually adjust their vertical position to achieve the best visual result.",
-            "order": 4
+            "order": 3
           }
         }
       }
