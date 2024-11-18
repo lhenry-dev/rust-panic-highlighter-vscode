@@ -191,6 +191,12 @@ export function activate(context: vscode.ExtensionContext) {
 	decorationType = createDecorationType();
 	context.subscriptions.push(decorationType);
 
+	vscode.workspace.textDocuments.forEach(doc => {
+		if (doc.languageId === 'rust') {
+			updateDiagnostics(doc, diagnosticCollection, decorationType);
+		}
+	});
+
 	vscode.workspace.onDidOpenTextDocument(doc => {
 		if (doc.languageId === 'rust') {
 			updateDiagnostics(doc, diagnosticCollection, decorationType);
@@ -206,6 +212,12 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidCloseTextDocument(doc => {
 		if (doc.languageId === 'rust') {
 			diagnosticCollection.delete(doc.uri);
+		}
+	});
+
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+		if (editor && editor.document.languageId === 'rust') {
+			updateDiagnostics(editor.document, diagnosticCollection, decorationType);
 		}
 	});
 
