@@ -8,7 +8,14 @@
     "vscode": "^1.95.0"
   },
   "categories": [
+    "Programming Languages",
+    "Formatters",
     "Other"
+  ],
+  "keywords": [
+    "rust",
+    "panic",
+    "highlighter"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
