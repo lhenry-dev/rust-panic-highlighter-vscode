@@ -3,7 +3,7 @@
   "displayName": "Rust Panic Highlighter",
   "description": "Highlights lines in Rust code that can panic",
   "publisher": "lhenryy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "engines": {
     "vscode": "^1.95.0"
   },
