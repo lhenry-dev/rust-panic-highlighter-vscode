@@ -4,7 +4,9 @@ The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines
 
 ## Features
 
-- **Highlight Panic Triggers**: Highlights occurrences of `panic!()`, `unwrap()`, and `expect()` in Rust code.
+- **Highlight Panic Triggers**: Highlights occurrences of `panic!()`, `unwrap()`, `expect()`, and other common panic triggers in Rust code.
+- **Diagnostic Severity Levels**: Control the severity level for Rust panic diagnostics, with options ranging from `Error` to `Hint`.
+- **Ignore Specific Panics**: Customize which panic types to ignore in diagnostics (e.g., `unwrap()`, `expect()`, etc.).
 - **Customizable Icon**: You can choose a custom icon to be displayed next to the panic triggers, with adjustable size and positioning.
 
 > Tip: This extension allows for easy identification of potentially unsafe code in Rust, helping developers avoid runtime errors caused by panics.
@@ -18,7 +20,13 @@ The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines
 
 This extension adds several configurable settings to control its behavior:
 
+### Diagnostic Severity
+
 * **`rustPanicHighlighter.diagnostic.severity`**: Set the severity level for Rust panic diagnostics. Options are: `Error`, `Warning`, `Information`, and `Hint`. Default is `Warning`.
+
+* **`rustPanicHighlighter.diagnostic.ignoredPanics`**: List of panic types to ignore for diagnostics. Leave empty to enable all. The list includes panic types like `panic`, `unwrap`, `unwrapUnchecked`, `unwrapErr`, `expect`, `todo`, etc. Default is an empty array.
+
+### Icon Settings
 
 * **`rustPanicHighlighter.icon.enabled`**: Enable or disable the icon display at the end of the line. Default is `true`.
 

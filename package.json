@@ -2,8 +2,11 @@
   "name": "rust-panic-highlighter",
   "displayName": "Rust Panic Highlighter",
   "description": "Highlights lines in Rust code that can panic",
+  "icon": "images/Rust_Panic_Highlighter_icon_resize.jpg",
   "publisher": "lhenryy",
-  "version": "1.0.2",
+  "pricing": "Free",
+  "license": "MIT",
+  "version": "1.0.3",
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -80,6 +83,31 @@
             "default": "Warning",
             "description": "Set the severity level for Rust panic diagnostics.",
             "order": 0
+          },
+          "rustPanicHighlighter.diagnostic.ignoredPanics": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string",
+              "enum": [
+                "panic",
+                "unwrap",
+                "unwrapUnchecked",
+                "unwrapErr",
+                "unwrapErrUnchecked",
+                "expect",
+                "todo",
+                "unimplemented",
+                "assert",
+                "assertEq",
+                "assertNe",
+                "debugAssert",
+                "debugAssertEq",
+                "debugAssertNe"
+              ]
+            },
+            "description": "List of panic types to ignore for diagnostics. Leave empty to enable all.",
+            "order": 1
           }
         }
       },
