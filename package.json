@@ -6,7 +6,7 @@
   "publisher": "lhenryy",
   "pricing": "Free",
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -92,18 +92,12 @@
               "enum": [
                 "panic",
                 "unwrap",
-                "unwrapUnchecked",
-                "unwrapErr",
-                "unwrapErrUnchecked",
+                "unwrap_unchecked",
+                "unwrap_err",
+                "unwrap_err_unchecked",
                 "expect",
                 "todo",
-                "unimplemented",
-                "assert",
-                "assertEq",
-                "assertNe",
-                "debugAssert",
-                "debugAssertEq",
-                "debugAssertNe"
+                "unimplemented"
               ]
             },
             "description": "List of panic types to ignore for diagnostics. Leave empty to enable all.",
