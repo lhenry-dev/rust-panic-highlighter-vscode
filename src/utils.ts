@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
-import { tmpFileName, supportedFormats, tmpFolderName } from './constants';
+import { tmpFileName, supportedFormats, tmpFolderName, defaultIconPath } from './constants';
 
 export function objectToCssString(settings: any): string {
     let value = '';
@@ -33,23 +33,9 @@ export function calculateEditorLineHeight(): number {
     return lineHeight;
 }
 
-const createTempSvgPath = (content: string): string => {
+function createTempSvgPath(content: string): string {
     const tempDir = os.tmpdir();
     const rustPanicHighlighterDir = path.join(tempDir, tmpFolderName);
-
-    if (fs.existsSync(rustPanicHighlighterDir)) {
-        // Vider le dossier en supprimant tous les fichiers à l'intérieur
-        const files = fs.readdirSync(rustPanicHighlighterDir);
-        files.forEach(file => {
-            const filePath = path.join(rustPanicHighlighterDir, file);
-            if (fs.lstatSync(filePath).isFile()) {
-                fs.unlinkSync(filePath);
-            }
-        });
-    } else {
-        // Si le dossier n'existe pas, le créer
-        fs.mkdirSync(rustPanicHighlighterDir);
-    }
 
     const uniqueId = uuidv4();
     const tempSvgPath = path.join(rustPanicHighlighterDir, `${tmpFileName}_${uniqueId}.svg`);
@@ -59,7 +45,24 @@ const createTempSvgPath = (content: string): string => {
     return tempSvgPath;
 };
 
-export const getIconPath = (iconPathSetting: string, width: string, height: string) => {
+export function clearOrCreateDirectoryInTempDir(directoryPath: string) {
+    const tempDir = os.tmpdir();
+    const directoryPathInTempDir = path.join(tempDir, tmpFolderName);
+
+    if (fs.existsSync(directoryPathInTempDir)) {
+        const files = fs.readdirSync(directoryPathInTempDir);
+        files.forEach(file => {
+            const filePath = path.join(directoryPathInTempDir, file);
+            if (fs.lstatSync(filePath).isFile()) {
+                fs.unlinkSync(filePath);
+            }
+        });
+    } else {
+        fs.mkdirSync(directoryPathInTempDir);
+    }
+}
+
+export function getSvgIcon(iconPathSetting: string, width: string, height: string): string {
     const ext = path.extname(iconPathSetting).toLowerCase();
 
     if (!supportedFormats.includes(ext)) {
@@ -109,3 +112,11 @@ export const getIconPath = (iconPathSetting: string, width: string, height: stri
         throw new Error(`An error occurred while processing the icon: ${iconPathSetting}`);
     }
 };
+
+export function getIconPath(context: vscode.ExtensionContext, iconPathSetting: string): string {
+    if (iconPathSetting === "default") {
+        return context.asAbsolutePath(defaultIconPath);
+    }
+
+    return iconPathSetting;
+}

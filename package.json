@@ -6,7 +6,7 @@
   "publisher": "lhenryy",
   "pricing": "Free",
   "license": "MIT",
-  "version": "1.0.4",
+  "version": "1.1.1",
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -69,7 +69,7 @@
     ],
     "configuration": [
       {
-        "title": "Diagnostic Severity",
+        "title": "Diagnostic Settings",
         "order": 0,
         "properties": {
           "rustPanicHighlighter.diagnostic.severity": {
@@ -127,9 +127,9 @@
           "rustPanicHighlighter.icon.path": {
             "type": "string",
             "default": "default",
-            "description": "Specify the path to the icon to display at the end of the line. It is recommended to use an SVG file. Use 'default' to load the extension's default icon.",
-            "pattern": "^(default|.*\\.(gif|png|jpe?g|svg))$",
-            "patternErrorMessage": "The value must be 'default' or a path ending with .gif, .png, .jpg, .jpeg, or .svg.",
+            "description": "Specify the path to the icon to display at the end of the line. You can specify a file path ending with .gif, .png, .jpg, .jpeg, or .svg, or a directory path that ends with a '/'. If a directory is specified, a random image from the directory will be chosen. It is recommended to use an SVG file. Use 'default' to load the extension's default icon.",
+            "pattern": "^(default|.*(?:\\.(gif|png|jpe?g|svg)|\\/))$",
+            "patternErrorMessage": "The value must be 'default' or a path ending with .gif, .png, .jpg, .jpeg, .svg, or a directory ending with '/'.",
             "order": 1
           },
           "rustPanicHighlighter.icon.minXPositionEnabled": {

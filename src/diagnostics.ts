@@ -45,7 +45,7 @@ const addCssString = objectToCssString(addCss);
 export function updateDiagnostics(
     doc: vscode.TextDocument,
     diagnosticCollection: vscode.DiagnosticCollection,
-    decorationType: vscode.TextEditorDecorationType,
+    decorationTypes: vscode.TextEditorDecorationType[],
     severity: vscode.DiagnosticSeverity,
     ignoredPanics: string[],
     minXPositionEnabled: boolean,
@@ -104,7 +104,7 @@ export function updateDiagnostics(
         }
     }
 
-    applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString, minXPositionEnabled, decorationType, diagnostics, diagnosticCollection, doc);
+    applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString, minXPositionEnabled, decorationTypes, diagnostics, diagnosticCollection, doc);
 }
 
 function applyDecorationsAndDiagnostics(
@@ -112,12 +112,18 @@ function applyDecorationsAndDiagnostics(
     rangesToDecorate: vscode.Range[],
     addCssString: string,
     minXPositionEnabled: boolean,
-    decorationType: vscode.TextEditorDecorationType,
+    decorationTypes: vscode.TextEditorDecorationType[],
     diagnostics: vscode.Diagnostic[],
     diagnosticCollection: vscode.DiagnosticCollection,
     doc: vscode.TextDocument
 ) {
     if (editor) {
+        decorationTypes.forEach(decorationType => {
+            editor.setDecorations(decorationType, []); // Remove all existing decorations for this decorationType
+        });
+
+        const randomDecorationType = decorationTypes[Math.floor(Math.random() * decorationTypes.length)];
+
         if (minXPositionEnabled) {
             const decorationOptions: vscode.DecorationOptions[] = rangesToDecorate.map(range => {
                 const cssToApply = (range.end.character >= maxLengthLine) ? '' : addCssString;
@@ -131,9 +137,9 @@ function applyDecorationsAndDiagnostics(
                     },
                 };
             });
-            editor.setDecorations(decorationType, decorationOptions);
+            editor.setDecorations(randomDecorationType, decorationOptions);
         } else {
-            editor.setDecorations(decorationType, rangesToDecorate);
+            editor.setDecorations(randomDecorationType, rangesToDecorate);
         }
 
         if (diagnostics.length === 0) {
@@ -168,7 +174,7 @@ function handleTestBlock(line: vscode.TextLine, inTestBlock: boolean, braceCount
 }
 
 export function getSeverityLevel(): vscode.DiagnosticSeverity {
-    const severitySetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.diagnostic.severity');
+    let severitySetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.diagnostic.severity');
     let severity: vscode.DiagnosticSeverity;
 
     switch (severitySetting) {
