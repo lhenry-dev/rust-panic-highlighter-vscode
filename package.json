@@ -84,6 +84,12 @@
             "description": "Set the severity level for Rust panic diagnostics.",
             "order": 0
           },
+          "rustPanicHighlighter.diagnostic.ignoreInTestBlock": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to ignore Rust panic diagnostics within test blocks.",
+            "order": 1
+          },
           "rustPanicHighlighter.diagnostic.ignoredPanics": {
             "type": "array",
             "default": [],
@@ -97,11 +103,14 @@
                 "unwrap_err_unchecked",
                 "expect",
                 "todo",
-                "unimplemented"
+                "unimplemented",
+                "assert",
+                "assert_eq",
+                "assert_ne"
               ]
             },
             "description": "List of panic types to ignore for diagnostics. Leave empty to enable all.",
-            "order": 1
+            "order": 2
           }
         }
       },

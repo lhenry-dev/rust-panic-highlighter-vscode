@@ -10,7 +10,10 @@ enum PanicType {
     expect = "expect(",
     panic = "panic!(",
     todo = "todo!(",
-    unimplemented = "unimplemented!("
+    unimplemented = "unimplemented!(",
+    assert = "assert!(",
+    assert_eq = "assert_eq!(",
+    assert_ne = "assert_ne!("
 }
 
 const DiagnosticMessages: Record<PanicType, string> = {
@@ -21,7 +24,10 @@ const DiagnosticMessages: Record<PanicType, string> = {
     [PanicType.expect]: "This line contains an 'expect()', which will panic if the result is None or Err.",
     [PanicType.panic]: "This line contains a 'panic!' which can cause a runtime panic.",
     [PanicType.todo]: "This line contains a 'todo!' macro, which is a placeholder and will panic if executed.",
-    [PanicType.unimplemented]: "This line contains an 'unimplemented!' macro, which will panic if executed."
+    [PanicType.unimplemented]: "This line contains an 'unimplemented!' macro, which will panic if executed.",
+    [PanicType.assert]: "This line contains an 'assert!()', which will panic if the condition is false.",
+    [PanicType.assert_eq]: "This line contains an 'assert_eq!()', which will panic if the two values are not equal.",
+    [PanicType.assert_ne]: "This line contains an 'assert_ne!()', which will panic if the two values are equal."
 };
 
 const fontSize = calculateEditorLineHeight();
@@ -42,7 +48,9 @@ export function updateDiagnostics(
     decorationType: vscode.TextEditorDecorationType,
     severity: vscode.DiagnosticSeverity,
     ignoredPanics: string[],
-    minXPositionEnabled: boolean): void {
+    minXPositionEnabled: boolean,
+    ignoreInTestBlock: boolean
+): void {
 
     if (doc.languageId !== 'rust') {
         return;
@@ -52,11 +60,24 @@ export function updateDiagnostics(
     let editor = vscode.window.activeTextEditor;
     let rangesToDecorate: vscode.Range[] = [];
 
+    let inTestBlock = false;
+    let braceCount = 0;
+
     for (let i = 0; i < doc.lineCount; i++) {
         const line = doc.lineAt(i);
 
         if (line.text.trimStart().startsWith("//")) {
             continue;
+        }
+
+        if (ignoreInTestBlock) {
+            let result = handleTestBlock(line, inTestBlock, braceCount);
+            inTestBlock = result.inTestBlock;
+            braceCount = result.braceCount;
+
+            if (result.shouldContinue) {
+                continue;
+            }
         }
 
         let foundType: PanicType | null = null;
@@ -121,6 +142,29 @@ function applyDecorationsAndDiagnostics(
             diagnosticCollection.set(doc.uri, diagnostics);
         }
     }
+}
+
+function handleTestBlock(line: vscode.TextLine, inTestBlock: boolean, braceCount: number): { inTestBlock: boolean, braceCount: number, shouldContinue: boolean } {
+    if (line.text.includes('#[cfg(test)]')) {
+        inTestBlock = true;
+        braceCount = 0;
+        return { inTestBlock, braceCount, shouldContinue: true };
+    }
+
+    if (inTestBlock) {
+        for (const char of line.text) {
+            if (char === '{') {
+                braceCount++;
+            } else if (char === '}') {
+                braceCount--;
+                if (braceCount === 0) {
+                    inTestBlock = false;
+                }
+            }
+        }
+    }
+
+    return { inTestBlock, braceCount, shouldContinue: inTestBlock };
 }
 
 export function getSeverityLevel(): vscode.DiagnosticSeverity {
