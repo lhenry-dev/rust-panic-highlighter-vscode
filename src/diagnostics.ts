@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { calculateEditorLineHeight, objectToCssString } from './utils';
+import { maxLengthLine, MinXPositionIconValue } from './constants';
 
 enum PanicType {
     unwrap = "unwrap(",
@@ -21,6 +23,18 @@ const DiagnosticMessages: Record<PanicType, string> = {
     [PanicType.todo]: "This line contains a 'todo!' macro, which is a placeholder and will panic if executed.",
     [PanicType.unimplemented]: "This line contains an 'unimplemented!' macro, which will panic if executed."
 };
+
+const fontSize = calculateEditorLineHeight();
+const charWidth = fontSize * 0.5;
+const leftPosition = MinXPositionIconValue * charWidth;
+
+const addCss = {
+    position: 'absolute',
+    ['z-index']: 1,
+    left: `${leftPosition}px`,
+};
+
+const addCssString = objectToCssString(addCss);
 
 export function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection: vscode.DiagnosticCollection, decorationType: vscode.TextEditorDecorationType): void {
     if (doc.languageId !== 'rust') {
@@ -66,14 +80,44 @@ export function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection
         }
     }
 
-    if (editor) {
-        editor.setDecorations(decorationType, rangesToDecorate);
-    }
+    applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString, decorationType, diagnostics, diagnosticCollection, doc);
+}
 
-    if (diagnostics.length === 0) {
-        diagnosticCollection.delete(doc.uri);
-    } else {
-        diagnosticCollection.set(doc.uri, diagnostics);
+function applyDecorationsAndDiagnostics(
+    editor: vscode.TextEditor | undefined,
+    rangesToDecorate: vscode.Range[],
+    addCssString: string,
+    decorationType: vscode.TextEditorDecorationType,
+    diagnostics: vscode.Diagnostic[],
+    diagnosticCollection: vscode.DiagnosticCollection,
+    doc: vscode.TextDocument
+) {
+    const MinXPositionIcon = vscode.workspace.getConfiguration().get<boolean>('rustPanicHighlighter.icon.minXPositionEnabled', true);
+
+    if (editor) {
+        if (MinXPositionIcon) {
+            const decorationOptions: vscode.DecorationOptions[] = rangesToDecorate.map(range => {
+                const cssToApply = (range.end.character >= maxLengthLine) ? '' : addCssString;
+
+                return {
+                    range: range,
+                    renderOptions: {
+                        after: {
+                            textDecoration: cssToApply,
+                        },
+                    },
+                };
+            });
+            editor.setDecorations(decorationType, decorationOptions);
+        } else {
+            editor.setDecorations(decorationType, rangesToDecorate);
+        }
+
+        if (diagnostics.length === 0) {
+            diagnosticCollection.delete(doc.uri);
+        } else {
+            diagnosticCollection.set(doc.uri, diagnostics);
+        }
     }
 }
 

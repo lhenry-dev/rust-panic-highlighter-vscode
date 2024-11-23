@@ -43,6 +43,7 @@ export function createDecorationType(context: vscode.ExtensionContext): vscode.T
     const defaultCss = {
         position: 'absolute',
         top: `${topValue}px`,
+        // left: '1000px',
         ['z-index']: 1,
         ['pointer-events']: 'none',
     };

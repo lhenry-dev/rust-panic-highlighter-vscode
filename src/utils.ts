@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
-import { tmpFileName } from './constants';
+import { tmpFileName, supportedFormats, tmpFolderName } from './constants';
 
 export function objectToCssString(settings: any): string {
     let value = '';
@@ -33,13 +33,29 @@ export function calculateEditorLineHeight(): number {
     return lineHeight;
 }
 
-const supportedFormats = ['.gif', '.png', '.jpg', '.jpeg', '.svg'];
-
 const createTempSvgPath = (content: string): string => {
     const tempDir = os.tmpdir();
+    const rustPanicHighlighterDir = path.join(tempDir, tmpFolderName);
+
+    if (fs.existsSync(rustPanicHighlighterDir)) {
+        // Vider le dossier en supprimant tous les fichiers à l'intérieur
+        const files = fs.readdirSync(rustPanicHighlighterDir);
+        files.forEach(file => {
+            const filePath = path.join(rustPanicHighlighterDir, file);
+            if (fs.lstatSync(filePath).isFile()) {
+                fs.unlinkSync(filePath);
+            }
+        });
+    } else {
+        // Si le dossier n'existe pas, le créer
+        fs.mkdirSync(rustPanicHighlighterDir);
+    }
+
     const uniqueId = uuidv4();
-    const tempSvgPath = path.join(tempDir, `tmpFile_${uniqueId}.svg`);
+    const tempSvgPath = path.join(rustPanicHighlighterDir, `${tmpFileName}_${uniqueId}.svg`);
+
     fs.writeFileSync(tempSvgPath, content, 'utf8');
+
     return tempSvgPath;
 };
 
