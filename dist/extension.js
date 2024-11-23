@@ -1536,6 +1536,9 @@ var PanicType = /* @__PURE__ */ ((PanicType2) => {
   PanicType2["panic"] = "panic!(";
   PanicType2["todo"] = "todo!(";
   PanicType2["unimplemented"] = "unimplemented!(";
+  PanicType2["assert"] = "assert!(";
+  PanicType2["assert_eq"] = "assert_eq!(";
+  PanicType2["assert_ne"] = "assert_ne!(";
   return PanicType2;
 })(PanicType || {});
 var DiagnosticMessages = {
@@ -1546,7 +1549,10 @@ var DiagnosticMessages = {
   ["expect(" /* expect */]: "This line contains an 'expect()', which will panic if the result is None or Err.",
   ["panic!(" /* panic */]: "This line contains a 'panic!' which can cause a runtime panic.",
   ["todo!(" /* todo */]: "This line contains a 'todo!' macro, which is a placeholder and will panic if executed.",
-  ["unimplemented!(" /* unimplemented */]: "This line contains an 'unimplemented!' macro, which will panic if executed."
+  ["unimplemented!(" /* unimplemented */]: "This line contains an 'unimplemented!' macro, which will panic if executed.",
+  ["assert!(" /* assert */]: "This line contains an 'assert!()', which will panic if the condition is false.",
+  ["assert_eq!(" /* assert_eq */]: "This line contains an 'assert_eq!()', which will panic if the two values are not equal.",
+  ["assert_ne!(" /* assert_ne */]: "This line contains an 'assert_ne!()', which will panic if the two values are equal."
 };
 var fontSize = calculateEditorLineHeight();
 var charWidth = fontSize * 0.5;
@@ -1557,17 +1563,27 @@ var addCss = {
   left: `${leftPosition}px`
 };
 var addCssString = objectToCssString(addCss);
-function updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled) {
+function updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled, ignoreInTestBlock) {
   if (doc.languageId !== "rust") {
     return;
   }
   let diagnostics = [];
   let editor = vscode3.window.activeTextEditor;
   let rangesToDecorate = [];
+  let inTestBlock = false;
+  let braceCount = 0;
   for (let i = 0; i < doc.lineCount; i++) {
     const line = doc.lineAt(i);
     if (line.text.trimStart().startsWith("//")) {
       continue;
+    }
+    if (ignoreInTestBlock) {
+      let result = handleTestBlock(line, inTestBlock, braceCount);
+      inTestBlock = result.inTestBlock;
+      braceCount = result.braceCount;
+      if (result.shouldContinue) {
+        continue;
+      }
     }
     let foundType = null;
     for (const [key, value] of Object.entries(PanicType)) {
@@ -1616,6 +1632,26 @@ function applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString2,
     }
   }
 }
+function handleTestBlock(line, inTestBlock, braceCount) {
+  if (line.text.includes("#[cfg(test)]")) {
+    inTestBlock = true;
+    braceCount = 0;
+    return { inTestBlock, braceCount, shouldContinue: true };
+  }
+  if (inTestBlock) {
+    for (const char of line.text) {
+      if (char === "{") {
+        braceCount++;
+      } else if (char === "}") {
+        braceCount--;
+        if (braceCount === 0) {
+          inTestBlock = false;
+        }
+      }
+    }
+  }
+  return { inTestBlock, braceCount, shouldContinue: inTestBlock };
+}
 function getSeverityLevel() {
   const severitySetting = vscode3.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.severity");
   let severity;
@@ -1644,16 +1680,17 @@ function activate(context) {
   let decorationType = createDecorationType(context);
   context.subscriptions.push(decorationType);
   let severity = getSeverityLevel();
+  let ignoreInTestBlock = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.ignoreInTestBlock", true);
   let ignoredPanics = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.ignoredPanics", []);
   let minXPositionEnabled = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.icon.minXPositionEnabled", true);
   vscode4.workspace.textDocuments.forEach((doc) => {
     if (doc.languageId === "rust") {
-      updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
+      updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled, ignoreInTestBlock);
     }
   });
   vscode4.workspace.onDidChangeTextDocument((event) => {
     if (event.document.languageId === "rust") {
-      updateDiagnostics(event.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
+      updateDiagnostics(event.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled, ignoreInTestBlock);
     }
   });
   vscode4.workspace.onDidCloseTextDocument((doc) => {
@@ -1663,7 +1700,7 @@ function activate(context) {
   });
   vscode4.window.onDidChangeActiveTextEditor((editor) => {
     if (editor && editor.document.languageId === "rust") {
-      updateDiagnostics(editor.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
+      updateDiagnostics(editor.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled, ignoreInTestBlock);
     }
   });
   vscode4.workspace.onDidChangeConfiguration((event) => {
@@ -1672,11 +1709,12 @@ function activate(context) {
       decorationType = createDecorationType(context);
       context.subscriptions.push(decorationType);
       severity = getSeverityLevel();
+      ignoreInTestBlock = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.ignoreInTestBlock", true);
       ignoredPanics = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.ignoredPanics", []);
       minXPositionEnabled = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.icon.minXPositionEnabled", true);
       vscode4.workspace.textDocuments.forEach((doc) => {
         if (doc.languageId === "rust") {
-          updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
+          updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled, ignoreInTestBlock);
         }
       });
     }
