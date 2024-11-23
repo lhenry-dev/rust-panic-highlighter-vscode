@@ -1557,15 +1557,13 @@ var addCss = {
   left: `${leftPosition}px`
 };
 var addCssString = objectToCssString(addCss);
-function updateDiagnostics(doc, diagnosticCollection, decorationType) {
+function updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled) {
   if (doc.languageId !== "rust") {
     return;
   }
-  const ignoredPanics = vscode3.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.ignoredPanics", []);
   let diagnostics = [];
   let editor = vscode3.window.activeTextEditor;
   let rangesToDecorate = [];
-  let severity = getSeverityLevel();
   for (let i = 0; i < doc.lineCount; i++) {
     const line = doc.lineAt(i);
     if (line.text.trimStart().startsWith("//")) {
@@ -1591,12 +1589,11 @@ function updateDiagnostics(doc, diagnosticCollection, decorationType) {
       diagnostics.push(diagnostic);
     }
   }
-  applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString, decorationType, diagnostics, diagnosticCollection, doc);
+  applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString, minXPositionEnabled, decorationType, diagnostics, diagnosticCollection, doc);
 }
-function applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString2, decorationType, diagnostics, diagnosticCollection, doc) {
-  const MinXPositionIcon = vscode3.workspace.getConfiguration().get("rustPanicHighlighter.icon.minXPositionEnabled", true);
+function applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString2, minXPositionEnabled, decorationType, diagnostics, diagnosticCollection, doc) {
   if (editor) {
-    if (MinXPositionIcon) {
+    if (minXPositionEnabled) {
       const decorationOptions = rangesToDecorate.map((range) => {
         const cssToApply = range.end.character >= maxLengthLine ? "" : addCssString2;
         return {
@@ -1646,14 +1643,17 @@ function activate(context) {
   context.subscriptions.push(diagnosticCollection);
   let decorationType = createDecorationType(context);
   context.subscriptions.push(decorationType);
+  let severity = getSeverityLevel();
+  let ignoredPanics = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.ignoredPanics", []);
+  let minXPositionEnabled = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.icon.minXPositionEnabled", true);
   vscode4.workspace.textDocuments.forEach((doc) => {
     if (doc.languageId === "rust") {
-      updateDiagnostics(doc, diagnosticCollection, decorationType);
+      updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
     }
   });
   vscode4.workspace.onDidChangeTextDocument((event) => {
     if (event.document.languageId === "rust") {
-      updateDiagnostics(event.document, diagnosticCollection, decorationType);
+      updateDiagnostics(event.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
     }
   });
   vscode4.workspace.onDidCloseTextDocument((doc) => {
@@ -1663,7 +1663,7 @@ function activate(context) {
   });
   vscode4.window.onDidChangeActiveTextEditor((editor) => {
     if (editor && editor.document.languageId === "rust") {
-      updateDiagnostics(editor.document, diagnosticCollection, decorationType);
+      updateDiagnostics(editor.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
     }
   });
   vscode4.workspace.onDidChangeConfiguration((event) => {
@@ -1671,9 +1671,12 @@ function activate(context) {
       decorationType.dispose();
       decorationType = createDecorationType(context);
       context.subscriptions.push(decorationType);
+      severity = getSeverityLevel();
+      ignoredPanics = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.diagnostic.ignoredPanics", []);
+      minXPositionEnabled = vscode4.workspace.getConfiguration().get("rustPanicHighlighter.icon.minXPositionEnabled", true);
       vscode4.workspace.textDocuments.forEach((doc) => {
         if (doc.languageId === "rust") {
-          updateDiagnostics(doc, diagnosticCollection, decorationType);
+          updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
         }
       });
     }

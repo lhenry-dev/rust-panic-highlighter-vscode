@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { createDecorationType } from './decoration';
-import { updateDiagnostics } from './diagnostics';
+import { getSeverityLevel, updateDiagnostics } from './diagnostics';
 
 export function activate(context: vscode.ExtensionContext) {
 	let diagnosticCollection = vscode.languages.createDiagnosticCollection('rust-panic-highlighter');
@@ -9,15 +9,19 @@ export function activate(context: vscode.ExtensionContext) {
 	let decorationType = createDecorationType(context);
 	context.subscriptions.push(decorationType);
 
+	let severity = getSeverityLevel();
+	let ignoredPanics = vscode.workspace.getConfiguration().get<string[]>('rustPanicHighlighter.diagnostic.ignoredPanics', []);
+	let minXPositionEnabled = vscode.workspace.getConfiguration().get<boolean>('rustPanicHighlighter.icon.minXPositionEnabled', true);
+
 	vscode.workspace.textDocuments.forEach(doc => {
 		if (doc.languageId === 'rust') {
-			updateDiagnostics(doc, diagnosticCollection, decorationType);
+			updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
 		}
 	});
 
 	vscode.workspace.onDidChangeTextDocument(event => {
 		if (event.document.languageId === 'rust') {
-			updateDiagnostics(event.document, diagnosticCollection, decorationType);
+			updateDiagnostics(event.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
 		}
 	});
 
@@ -29,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
 		if (editor && editor.document.languageId === 'rust') {
-			updateDiagnostics(editor.document, diagnosticCollection, decorationType);
+			updateDiagnostics(editor.document, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
 		}
 	});
 
@@ -40,9 +44,13 @@ export function activate(context: vscode.ExtensionContext) {
 			decorationType = createDecorationType(context);
 			context.subscriptions.push(decorationType);
 
+			severity = getSeverityLevel();
+			ignoredPanics = vscode.workspace.getConfiguration().get<string[]>('rustPanicHighlighter.diagnostic.ignoredPanics', []);
+			minXPositionEnabled = vscode.workspace.getConfiguration().get<boolean>('rustPanicHighlighter.icon.minXPositionEnabled', true);
+
 			vscode.workspace.textDocuments.forEach(doc => {
 				if (doc.languageId === 'rust') {
-					updateDiagnostics(doc, diagnosticCollection, decorationType);
+					updateDiagnostics(doc, diagnosticCollection, decorationType, severity, ignoredPanics, minXPositionEnabled);
 				}
 			});
 		}
