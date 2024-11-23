@@ -15,12 +15,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	vscode.workspace.onDidOpenTextDocument(doc => {
-		if (doc.languageId === 'rust') {
-			updateDiagnostics(doc, diagnosticCollection, decorationType);
-		}
-	});
-
 	vscode.workspace.onDidChangeTextDocument(event => {
 		if (event.document.languageId === 'rust') {
 			updateDiagnostics(event.document, diagnosticCollection, decorationType);
