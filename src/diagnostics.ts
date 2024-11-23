@@ -36,18 +36,21 @@ const addCss = {
 
 const addCssString = objectToCssString(addCss);
 
-export function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection: vscode.DiagnosticCollection, decorationType: vscode.TextEditorDecorationType): void {
+export function updateDiagnostics(
+    doc: vscode.TextDocument,
+    diagnosticCollection: vscode.DiagnosticCollection,
+    decorationType: vscode.TextEditorDecorationType,
+    severity: vscode.DiagnosticSeverity,
+    ignoredPanics: string[],
+    minXPositionEnabled: boolean): void {
+
     if (doc.languageId !== 'rust') {
         return;
     }
 
-    const ignoredPanics = vscode.workspace.getConfiguration().get<string[]>('rustPanicHighlighter.diagnostic.ignoredPanics', []);
-
     let diagnostics: vscode.Diagnostic[] = [];
     let editor = vscode.window.activeTextEditor;
     let rangesToDecorate: vscode.Range[] = [];
-
-    let severity = getSeverityLevel();
 
     for (let i = 0; i < doc.lineCount; i++) {
         const line = doc.lineAt(i);
@@ -80,22 +83,21 @@ export function updateDiagnostics(doc: vscode.TextDocument, diagnosticCollection
         }
     }
 
-    applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString, decorationType, diagnostics, diagnosticCollection, doc);
+    applyDecorationsAndDiagnostics(editor, rangesToDecorate, addCssString, minXPositionEnabled, decorationType, diagnostics, diagnosticCollection, doc);
 }
 
 function applyDecorationsAndDiagnostics(
     editor: vscode.TextEditor | undefined,
     rangesToDecorate: vscode.Range[],
     addCssString: string,
+    minXPositionEnabled: boolean,
     decorationType: vscode.TextEditorDecorationType,
     diagnostics: vscode.Diagnostic[],
     diagnosticCollection: vscode.DiagnosticCollection,
     doc: vscode.TextDocument
 ) {
-    const MinXPositionIcon = vscode.workspace.getConfiguration().get<boolean>('rustPanicHighlighter.icon.minXPositionEnabled', true);
-
     if (editor) {
-        if (MinXPositionIcon) {
+        if (minXPositionEnabled) {
             const decorationOptions: vscode.DecorationOptions[] = rangesToDecorate.map(range => {
                 const cssToApply = (range.end.character >= maxLengthLine) ? '' : addCssString;
 
