@@ -151,7 +151,7 @@ function applyDecorationsAndDiagnostics(
 }
 
 function handleTestBlock(line: vscode.TextLine, inTestBlock: boolean, braceCount: number): { inTestBlock: boolean, braceCount: number, shouldContinue: boolean } {
-    if (line.text.includes('#[cfg(test)]')) {
+    if (line.text.includes('#[test]')) {
         inTestBlock = true;
         braceCount = 0;
         return { inTestBlock, braceCount, shouldContinue: true };

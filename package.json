@@ -6,7 +6,11 @@
   "publisher": "lhenryy",
   "pricing": "Free",
   "license": "MIT",
-  "version": "1.1.1",
+  "version": "1.1.2",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/luk35/rust-panic-highlighter-vs-code-extension"
+  },
   "engines": {
     "vscode": "^1.95.0"
   },
