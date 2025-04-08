@@ -37,8 +37,8 @@ mkdir -p releases
 
 # 3. Create the .vsix file and move it to the /releases folder
 echo "Creating .vsix file..."
-vsce package "$VERSION"
-mv "$PACKAGE_NAME-$VERSION.vsix" releases/
+vsce package
+mv "$PACKAGE_NAME-*.vsix" releases/  # This handles the version dynamically
 
 # 4. Publish the extension with VSCE
 echo "Publishing the extension..."
@@ -49,8 +49,16 @@ vsce publish "$VERSION"
 echo "Creating tag v$VERSION..."
 git tag -a "v$VERSION" -m "chore: Release $PACKAGE_NAME version $VERSION"
 
-# 6. Commit and push changes to the main branch
-echo "Committing and pushing changes..."
+# 6. Stage the .vsix file for commit
+echo "Adding the .vsix file to Git..."
+git add releases/"$PACKAGE_NAME-*.vsix"
+
+# 7. Commit the changes (including the .vsix file)
+echo "Committing changes..."
+git commit -m "chore: Add $PACKAGE_NAME-$VERSION .vsix file"
+
+# 8. Push the commit and the tag
+echo "Pushing changes..."
 git push origin main
 git push origin "v$VERSION"
 
