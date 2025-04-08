@@ -28,16 +28,28 @@ fi
 echo "Bumping version ($1)..."
 npm version $1 -m "Release version %s"
 
-# 2. Publish the extension with VSCE
-echo "Publishing the extension..."
-vsce publish --version $(node -p "require('./package.json').version")
-
-# 3. Create a git tag for the new version
 VERSION=$(node -p "require('./package.json').version")
-echo "Creating tag v$VERSION..."
-git tag -a "v$VERSION" -m "Release version $VERSION"
+PACKAGE_NAME=$(node -p "require('./package.json').name")
 
-# 4. Commit and push changes to the main branch
+# 2. Create the /releases folder if it doesn't exist
+echo "Creating releases folder if it doesn't exist..."
+mkdir -p releases
+
+# 3. Create the .vsix file and move it to the /releases folder
+echo "Creating .vsix file..."
+vsce package "$VERSION"
+mv "$PACKAGE_NAME-$VERSION.vsix" releases/
+
+# 4. Publish the extension with VSCE
+echo "Publishing the extension..."
+echo "Version: $VERSION"
+vsce publish "$VERSION"
+
+# 5. Create a git tag for the new version
+echo "Creating tag v$VERSION..."
+git tag -a "v$VERSION" -m "chore: Release $PACKAGE_NAME version $VERSION"
+
+# 6. Commit and push changes to the main branch
 echo "Committing and pushing changes..."
 git push origin main
 git push origin "v$VERSION"
