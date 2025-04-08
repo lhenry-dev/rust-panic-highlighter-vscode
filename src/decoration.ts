@@ -91,7 +91,7 @@ export function createDecorationTypes(context: vscode.ExtensionContext, imgPath:
         try {
             iconPath_tmp = getSvgIcon(path.join(iconFolderPath, iconFile), iconWidthWithPx, iconHeightWithPx);
         } catch (error) {
-            console.error(`Error while creating decoration type for icon: ${iconFile}`);
+            console.error(`Error while creating decoration type for icon: ${iconFile}, error : ${error}`);
             continue;
         }
 

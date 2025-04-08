@@ -5,10 +5,12 @@ import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 import { tmpFileName, supportedFormats, tmpFolderName, defaultIconPath } from './constants';
 
-export function objectToCssString(settings: any): string {
+type CssSettings = Record<string, string | number>;
+
+export function objectToCssString(settings: CssSettings): string {
     let value = '';
     const cssString = Object.keys(settings).map(setting => {
-        value = settings[setting];
+        value = String(settings[setting]);
         if (typeof value === 'string' || typeof value === 'number') {
             return `${setting}: ${value};`;
         }
@@ -45,7 +47,7 @@ function createTempSvgPath(content: string): string {
     return tempSvgPath;
 };
 
-export function clearOrCreateDirectoryInTempDir(directoryPath: string) {
+export function clearOrCreateDirectoryInTempDir() {
     const tempDir = os.tmpdir();
     const directoryPathInTempDir = path.join(tempDir, tmpFolderName);
 

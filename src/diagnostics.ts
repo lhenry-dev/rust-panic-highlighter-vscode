@@ -7,7 +7,7 @@ enum PanicType {
     unwrap_unchecked = "unwrap_unchecked(",
     unwrap_err = "unwrap_err(",
     unwrap_err_unchecked = "unwrap_err_unchecked(",
-    expect = "expect(",
+    expect = "expect(\"",
     panic = "panic!(",
     todo = "todo!(",
     unimplemented = "unimplemented!(",
@@ -56,9 +56,9 @@ export function updateDiagnostics(
         return;
     }
 
-    let diagnostics: vscode.Diagnostic[] = [];
-    let editor = vscode.window.activeTextEditor;
-    let rangesToDecorate: vscode.Range[] = [];
+    const diagnostics: vscode.Diagnostic[] = [];
+    const editor = vscode.window.activeTextEditor;
+    const rangesToDecorate: vscode.Range[] = [];
 
     let inTestBlock = false;
     let braceCount = 0;
@@ -71,7 +71,7 @@ export function updateDiagnostics(
         }
 
         if (ignoreInTestBlock) {
-            let result = handleTestBlock(line, inTestBlock, braceCount);
+            const result = handleTestBlock(line, inTestBlock, braceCount);
             inTestBlock = result.inTestBlock;
             braceCount = result.braceCount;
 
@@ -173,8 +173,9 @@ function handleTestBlock(line: vscode.TextLine, inTestBlock: boolean, braceCount
     return { inTestBlock, braceCount, shouldContinue: inTestBlock };
 }
 
+
 export function getSeverityLevel(): vscode.DiagnosticSeverity {
-    let severitySetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.diagnostic.severity');
+    const severitySetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.diagnostic.severity');
     let severity: vscode.DiagnosticSeverity;
 
     switch (severitySetting) {
