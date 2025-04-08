@@ -70,17 +70,3 @@ This extension adds several configurable settings to control its behavior:
 ## Known Issues
 
 - **Icons alignment issues:** Depending on your editor settings (e.g., font size, line height), the icon's vertical alignment might not appear as expected. To address this, the `adjustTopPosition` parameter has been added, allowing you to fine-tune the icon's vertical position manually for better alignment.
-
-## Release Notes
-
-### 1.1.0
-
-- Added the option to ignore panics in test blocks, improving workflows for Rust testing.  
-- Introduced support for directory-based random icon selection, enabling more dynamic customization.  
-- Added a **minimum X position** for icons, ensuring alignment at least 100 characters from the start of the line.  
-
-### 1.0.0
-
-- Initial release of **Rust Panic Highlighter**.
-- Features include highlighting of panic triggers (`panic!()`, `unwrap()`, `expect()`) with a customizable icon.
-- Configurable settings for icon path, size, and position.
