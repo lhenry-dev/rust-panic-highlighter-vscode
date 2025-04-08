@@ -2,13 +2,12 @@ import * as vscode from 'vscode';
 import fs from 'fs';
 import { createDecorationType, createDecorationTypes } from './decoration';
 import { getSeverityLevel, updateDiagnostics } from './diagnostics';
-import { tmpFolderName } from './constants';
 import { clearOrCreateDirectoryInTempDir, getIconPath } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
-	clearOrCreateDirectoryInTempDir(tmpFolderName);
+	clearOrCreateDirectoryInTempDir();
 
-	let diagnosticCollection = vscode.languages.createDiagnosticCollection('rust-panic-highlighter');
+	const diagnosticCollection = vscode.languages.createDiagnosticCollection('rust-panic-highlighter');
 	context.subscriptions.push(diagnosticCollection);
 
 	let imgPathSetting = vscode.workspace.getConfiguration().get<string>('rustPanicHighlighter.icon.path') || 'default';
@@ -58,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (event.affectsConfiguration('rustPanicHighlighter')) {
 
-			clearOrCreateDirectoryInTempDir(tmpFolderName);
+			clearOrCreateDirectoryInTempDir();
 
 			decorationTypes.forEach(decorationType => {
 				decorationType.dispose();
