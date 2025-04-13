@@ -2,6 +2,8 @@
 
 The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines of code containing common panic triggers in Rust, such as `panic!()`, `unwrap()`, and `expect()`. It provides visual warnings directly in the editor to help developers identify potentially dangerous code that could cause runtime panics.
 
+![alt text](rust_panic_highlighter.gif)
+
 ## Features
 
 - **Highlight Panic Triggers**: Highlights occurrences of `panic!()`, `unwrap()`, `expect()`, and other common panic triggers in Rust code.
@@ -13,16 +15,23 @@ The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines
 - **Directory Support for Icons**: Use a directory of images for random icon selection.
 - **Minimum Icon Position**: Ensure icons are aligned at least 100 characters from the start of the line, or position them immediately after the content.
 
-> Tip: This extension allows for easy identification of potentially unsafe code in Rust, helping developers avoid runtime errors caused by panics.
-
-## Requirements
-
-- **Visual Studio Code**: This extension works with Visual Studio Code, version 1.95 or higher.
-- **Rust Development Environment**: You need to have a Rust development environment set up (e.g., `rustup`, `cargo`).
-
 ## Extension Settings
 
+You can customize the behavior of the Rust Panic Highlighter through the extension settings in Visual Studio Code.
+
+To change these settings:
+
+  1. Open the Command Palette (Ctrl+Shift+P or Cmd+Shift+P on macOS).
+
+  2. Search for and select Preferences: Open Settings (UI).
+
+  3. In the search bar, type Rust Panic Highlighter to filter the relevant options.
+
+  4. Adjust the settings using the user interface.
+
 This extension adds several configurable settings to control its behavior:
+
+### Diagnostic Settings
 
 * **`rustPanicHighlighter.diagnostic.severity`**:  
   Set the severity level for Rust panic diagnostics.  
@@ -66,6 +75,11 @@ This extension adds several configurable settings to control its behavior:
   Adjust the vertical position of the icon in pixels.  
   - Use positive or negative values for fine-tuning.  
   - Default: `0`
+
+## Requirements
+
+- **Visual Studio Code**: This extension works with Visual Studio Code, version 1.95 or higher.
+- **Rust Development Environment**: You need to have a Rust development environment set up (e.g., `rustup`, `cargo`).
 
 ## Known Issues
 
