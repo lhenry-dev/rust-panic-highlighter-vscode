@@ -70,11 +70,6 @@ This extension adds several configurable settings to control its behavior:
   - Use positive or negative values for fine-tuning.  
   - Default: `0`
 
-## Requirements
-
-- **Visual Studio Code**: This extension works with Visual Studio Code, version 1.95 or higher.
-- **Rust Development Environment**: You need to have a Rust development environment set up (e.g., `rustup`, `cargo`).
-
 ## Known Issues
 
 - **Icons alignment issues:** Depending on your editor settings (e.g., font size, line height), the icon's vertical alignment might not appear as expected. To address this, the `adjustTopPosition` parameter has been added, allowing you to fine-tune the icon's vertical position manually for better alignment.
