@@ -4,7 +4,7 @@ import * as path from 'path';
 import { getSvgIcon } from './utils';
 import { defaultIconPath, defaultIconSize, defaultAdjustTopPosition } from './constants';
 import { calculateEditorLineHeight, objectToCssString } from './utils';
-import sizeOf from "image-size";
+import { imageSize } from "image-size";
 
 export function createDecorationType(context: vscode.ExtensionContext, imgPath: string): vscode.TextEditorDecorationType {
     const isEnabled = vscode.workspace.getConfiguration().get<boolean>('rustPanicHighlighter.icon.enabled') ?? true;
@@ -28,7 +28,8 @@ export function createDecorationType(context: vscode.ExtensionContext, imgPath: 
     const iconHeightWithPx = `${iconSize}px`;
 
     const iconPath_tmp = getSvgIcon(imgPath, iconWidthWithPx, iconHeightWithPx);
-    const iconsize = sizeOf(iconPath_tmp);
+    const iconBuffer = fs.readFileSync(iconPath_tmp)
+    const iconsize = imageSize(iconBuffer);
     const iconPath = vscode.Uri.file(iconPath_tmp);
 
     const lineHeight = calculateEditorLineHeight();
@@ -101,7 +102,8 @@ export function createDecorationTypes(context: vscode.ExtensionContext, imgPath:
 
         const iconPath = vscode.Uri.file(iconPath_tmp);
 
-        const iconSize = sizeOf(iconPath_tmp);
+        const iconBuffer = fs.readFileSync(iconPath_tmp)
+        const iconSize = imageSize(iconBuffer);
 
         const lineHeight = calculateEditorLineHeight();
         const iconHeight = iconSize.height ?? defaultIconSize;
