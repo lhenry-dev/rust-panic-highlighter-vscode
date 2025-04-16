@@ -1,4 +1,4 @@
-# Rust Panic Highlighter
+<h1 align="center">Rust Panic Highlighter</h1>
 
 The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines of code containing common panic triggers in Rust, such as `panic!()`, `unwrap()`, and `expect()`. It provides visual warnings directly in the editor to help developers identify potentially dangerous code that could cause runtime panics.
 
@@ -7,13 +7,7 @@ The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines
 ## Features
 
 - **Highlight Panic Triggers**: Highlights occurrences of `panic!()`, `unwrap()`, `expect()`, and other common panic triggers in Rust code.
-- **Diagnostic Severity Levels**: Control the severity level for Rust panic diagnostics, with options ranging from `Error` to `Hint`.
-- **Ignore Test Blocks**: Optionally ignore panic diagnostics in test blocks for cleaner testing workflows.
-- **Ignore Specific Panics**: Customize which panic types to ignore in diagnostics (e.g., `unwrap()`, `expect()`, etc.).
-
 - **Customizable Icon**: You can choose a custom icon to be displayed next to the panic triggers, with adjustable size and positioning.
-- **Directory Support for Icons**: Use a directory of images for random icon selection.
-- **Minimum Icon Position**: Ensure icons are aligned at least 100 characters from the start of the line, or position them immediately after the content.
 
 ## Extension Settings
 
@@ -54,7 +48,7 @@ This extension adds several configurable settings to control its behavior:
   - Default: `true`  
 
 * **`rustPanicHighlighter.icon.path`**:  
-  Specify the path to the icon to display at the end of the line.  
+  Specify the path to an icon or a folder of icons to display at the end of the line.
   - Supports file formats: `.gif`, `.png`, `.jpg`, `.jpeg`, `.svg`  
   - Directory support: Provide a directory path ending with `/` to randomly choose an image from the directory.  
   - Use `'default'` to load the extension's default icon.  
@@ -84,3 +78,6 @@ This extension adds several configurable settings to control its behavior:
 ## Known Issues
 
 - **Icons alignment issues:** Depending on your editor settings (e.g., font size, line height), the icon's vertical alignment might not appear as expected. To address this, the `adjustTopPosition` parameter has been added, allowing you to fine-tune the icon's vertical position manually for better alignment.
+
+- **Inaccuracy with `minXPositionEnabled`:** When `minXPositionEnabled` is activated, it becomes difficult to accurately determine the length of the line, as there is no access to content added by other extensions. This can lead to inconsistent icon positioning, especially when other extensions modify or append elements at the end of the line.
+
