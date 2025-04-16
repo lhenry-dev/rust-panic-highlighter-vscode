@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Check if we're on the main branch
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
