@@ -1,5 +1,11 @@
 <h1 align="center">Rust Panic Highlighter</h1>
 
+<p align="center">
+   <a href="https://github.com/lhenry-dev/rust-panic-highlighter-vscode/actions/workflows/ci.yml?query=branch%3Amain">
+    <img src="https://img.shields.io/github/actions/workflow/status/lhenry-dev/rust-panic-highlighter-vscode/ci.yml?branch=main" alt="Build Status">
+  </a>
+</p>
+
 The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines of code containing common panic triggers in Rust, such as `panic!()`, `unwrap()`, and `expect()`. It provides visual warnings directly in the editor to help developers identify potentially dangerous code that could cause runtime panics.
 
 ![alt text](rust_panic_highlighter.gif)
