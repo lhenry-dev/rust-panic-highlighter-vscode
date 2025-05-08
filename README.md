@@ -1,8 +1,17 @@
 <h1 align="center">Rust Panic Highlighter</h1>
 
 <p align="center">
-   <a href="https://github.com/lhenry-dev/rust-panic-highlighter-vscode/actions/workflows/ci.yml?query=branch%3Amain">
+  <a href="https://github.com/lhenry-dev/rust-panic-highlighter-vscode/actions/workflows/ci.yml?query=branch%3Amain">
     <img src="https://img.shields.io/github/actions/workflow/status/lhenry-dev/rust-panic-highlighter-vscode/ci.yml?branch=main" alt="Build Status">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter">
+    <img src="https://vsmarketplacebadges.dev/version-short/lhenryy.rust-panic-highlighter.svg" alt="VS Code Marketplace Version">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter">
+    <img src="https://vsmarketplacebadges.dev/installs-short/lhenryy.rust-panic-highlighter.svg" alt="VS Code Marketplace Installs">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter">
+    <img src="https://vsmarketplacebadges.dev/rating-short/lhenryy.rust-panic-highlighter.svg" alt="VS Code Marketplace Rating">
   </a>
 </p>
 
