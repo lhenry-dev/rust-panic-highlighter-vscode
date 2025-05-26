@@ -1,23 +1,19 @@
-<h1 align="center">Rust Panic Highlighter</h1>
+<div align="center">
 
-<p align="center">
-  <a href="https://github.com/lhenry-dev/rust-panic-highlighter-vscode/actions/workflows/ci.yml?query=branch%3Amain">
-    <img src="https://img.shields.io/github/actions/workflow/status/lhenry-dev/rust-panic-highlighter-vscode/ci.yml?branch=main" alt="Build Status">
-  </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter">
-    <img src="https://vsmarketplacebadges.dev/version-short/lhenryy.rust-panic-highlighter.svg" alt="VS Code Marketplace Version">
-  </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter">
-    <img src="https://vsmarketplacebadges.dev/installs-short/lhenryy.rust-panic-highlighter.svg" alt="VS Code Marketplace Installs">
-  </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter">
-    <img src="https://vsmarketplacebadges.dev/rating-short/lhenryy.rust-panic-highlighter.svg" alt="VS Code Marketplace Rating">
-  </a>
-</p>
+<h1>Rust Panic Highlighter</h1>
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/lhenry-dev/rust-panic-highlighter-vscode/ci.yml?branch=main)](https://github.com/lhenry-dev/rust-panic-highlighter-vscode/actions/workflows/ci.yml?branch=main)
+[![VS Code Marketplace Version](https://vsmarketplacebadges.dev/version-short/lhenryy.rust-panic-highlighter.svg)](https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter)
+[![VS Code Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/lhenryy.rust-panic-highlighter.svg)](https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter)
+[![VS Code Marketplace Rating](https://vsmarketplacebadges.dev/rating-short/lhenryy.rust-panic-highlighter.svg)](https://marketplace.visualstudio.com/items?itemName=lhenryy.rust-panic-highlighter)
+
+---
 
 The **Rust Panic Highlighter** extension for Visual Studio Code highlights lines of code containing common panic triggers in Rust, such as `panic!()`, `unwrap()`, and `expect()`. It provides visual warnings directly in the editor to help developers identify potentially dangerous code that could cause runtime panics.
 
-![alt text](rust_panic_highlighter.gif)
+![Rust Panic Highlighter Demo](rust_panic_highlighter.gif)
+
+</div>
 
 ## Features
 
