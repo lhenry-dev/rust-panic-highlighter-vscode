@@ -123,7 +123,10 @@ function applyDecorationsAndDiagnostics(
 }
 
 function handleTestBlock(line: vscode.TextLine, inTestBlock: boolean, braceCount: number): { inTestBlock: boolean, braceCount: number, shouldContinue: boolean } {
-    if (line.text.includes('#[test]')) {
+    // Flexible detection: #[test], #[tokio::test], #[async_std::test], etc.
+    const testAttrRegex = /#\[\s*(?:[\w:]+)?\s*test\s*(?:\([^)]*\))?\s*\]/;
+
+    if (testAttrRegex.test(line.text)) {
         inTestBlock = true;
         braceCount = 0;
         return { inTestBlock, braceCount, shouldContinue: true };
